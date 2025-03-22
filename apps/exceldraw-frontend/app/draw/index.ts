@@ -14,19 +14,12 @@ type Shape =
       centerX: number;
       centerY: number;
       radius: number;
-    }
-  |{
-    type: "line"; 
-      x: number;
-      y: number;
-      width:number;
-  };
+    };
 
 export async function initDraw(
   canvas: HTMLCanvasElement,
   roomId: string,
-  socket: WebSocket,
-  shape:Shape
+  socket: WebSocket
 ) {
   const ctx = canvas.getContext("2d");
 
