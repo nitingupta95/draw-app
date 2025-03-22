@@ -1,5 +1,6 @@
 import { HTTP_BACKEND } from "@/config";
 import axios from "axios";
+import { Canvas } from "../components/Canvas";
 
 type Shape =
   | {
@@ -14,6 +15,13 @@ type Shape =
       centerX: number;
       centerY: number;
       radius: number;
+    }
+    |{
+      type:"pencil";
+      startX:number;
+      startY:number;
+      endX:number;
+      endY:number;
     };
 
 export async function initDraw(
@@ -62,16 +70,34 @@ export async function initDraw(
     const width = e.clientX - canvas.getBoundingClientRect().left - startX;
     const height = e.clientY - canvas.getBoundingClientRect().top - startY;
 
-    const shape: Shape = {
-      type: "rect",
-      x: startX,
-      y: startY,
-      width,
-      height,
-    };
+    const selectedTool= window.selectedTool;
+    let shape:Shape|null=null
+    if(selectedTool==="rect"){
+      shape = {
+        type:"rect",
+        x: startX,
+        y: startY,
+        width,
+        height,
+      };      
+    }
 
+    else if (selectedTool==="circle"){
+      const radius = Math.abs(Math.max(width, height) / 2);
+      shape= {
+        type:"circle",
+        radius,
+        centerX: startX + radius, 
+        centerY:startY + radius
+      };
+  
+      
+    }
+    if(!shape){
+      return null
+    }
     existingShapes.push(shape);
-
+    
     socket.send(
       JSON.stringify({
         type: "chat",
@@ -79,10 +105,45 @@ export async function initDraw(
         roomId,
       })
     );
-
     clearCanvas(existingShapes, canvas, ctx);
   });
+
+
+
+
+  canvas.addEventListener("mousemove", (e:any) => {
+    if (isDrawing) {
+        const width = e.clientX - startX;
+        const height = e.clientY - startY;
+        clearCanvas(existingShapes, canvas, ctx);
+        ctx.strokeStyle = "rgba(255, 255, 255)"
+        // @ts-ignore
+        const selectedTool = window.selectedTool;
+        if(selectedTool === "rect") {
+            ctx.strokeRect(startX, startY, width, height);   
+        }else if(selectedTool === "circle"){
+          const radius = Math.abs(Math.max(width, height) / 2);
+          const centerX = startX + radius;
+          const centerY = startY + radius;
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.closePath();                
+        }
+    }
+  })    
+
 }
+
+
+
+
+        
+
+
+
+
+
 
 function clearCanvas(
   existingShapes: Shape[],
@@ -96,10 +157,11 @@ function clearCanvas(
   existingShapes.forEach((shape) => {
     if (!shape || !shape.type) return;
 
-    ctx.strokeStyle = "rgba(255, 255, 255)";
+    
     ctx.lineWidth = 2;
 
     if (shape.type === "rect") {
+      ctx.strokeStyle = "rgba(255, 255, 255)";
       ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
     } else if (shape.type === "circle") {
       ctx.beginPath();
