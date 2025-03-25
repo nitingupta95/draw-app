@@ -17,5 +17,7 @@
       "cache": false,
       "persistent": true
     }
-  }
+  },
+  "globalEnv": ["DATABASE_URL"],
+  "globalDependencies": ["db/prisma/schema.prisma", "tsconfig.json"]
 }
