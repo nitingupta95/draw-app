@@ -29,19 +29,10 @@ export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }
             const g = new Game(canvasRef.current, roomId, socket);
             setGame(g);
 
-            const handleUndoRedo = (e: KeyboardEvent) => {
-                if (e.ctrlKey && e.key === "z") {
-                    g.undo();
-                } else if (e.ctrlKey && e.key === "y") {
-                    g.redo();
-                }
-            };
-
-            window.addEventListener("keydown", handleUndoRedo);
+           
 
             return () => {
-                g.destroy();
-                window.removeEventListener("keydown", handleUndoRedo);
+                g.destroy(); 
             };
         }
     }, [canvasRef]);

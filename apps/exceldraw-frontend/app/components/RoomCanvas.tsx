@@ -25,8 +25,9 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
         
             ws.onopen = () => {
                 console.log(`✅ Joined room: ${roomId}`);
-                ws.send(JSON.stringify({ type: "join_room", roomId }));
                 setSocket(ws);
+                ws.send(JSON.stringify({ type: "join_room", roomId }));
+                
             };
         
             ws.onmessage = (event) => {
@@ -38,17 +39,7 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
             };
         }, [roomId]);
         
-        const sendMessage = (message: string) => {
-            console.log("📤 Trying to send message...");
-            if (!socket || socket.readyState !== WebSocket.OPEN) {
-                console.warn("⚠️ WebSocket is not open. Cannot send message.");
-                return;
-            }
-            const payload = { type: "chat", roomId, message };
-            console.log("📤 Sending message:", payload);
-            socket.send(JSON.stringify(payload));
-        };
-        
+         
 
      
 
@@ -59,7 +50,6 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
     return (
         <div>
             <Canvas roomId={roomId} socket={socket} />
-            <button onClick={() => sendMessage("Hello from frontend!")}>Send Message</button>
-        </div>
+         </div>
     );
 }

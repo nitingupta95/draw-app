@@ -196,6 +196,13 @@ export class Game {
         if (!shape) return;
         this.existingShapes.push(shape);
         this.clearCanvas();
+
+
+        this.socket.send(JSON.stringify({
+            type: "chat",
+            message: JSON.stringify({ shape }),
+            roomId: this.roomId
+        }));
     };
 
     initMouseHandlers() {

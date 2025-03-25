@@ -79,7 +79,7 @@ wss.on("connection", function connection(ws: WebSocket, request) {
                     return;
                 }
 
-                // ✅ Save message to DB
+            
                 await prismaClient.chat.create({
                     data: {
                         roomId: Number(roomId),
