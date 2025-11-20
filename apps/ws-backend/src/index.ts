@@ -6,80 +6,101 @@ import { prismaClient } from "@repo/db/client";
 const wss = new WebSocketServer({ port: 8080 });
 
 interface User {
-  ws: WebSocket;
-  rooms: string[];
-  userId: string;
+    ws: WebSocket;
+    rooms: string[];
+    userId: string;
 }
+
 let users: User[] = [];
 
-// ✅ Function to verify JWT token
+// 🔐 Validate JWT Token
 function checkUser(token: string): string | null {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        return typeof decoded === "string" || !decoded?.userId ? null : decoded.userId;
-    } catch (err) {
+        const decoded: any = jwt.verify(token, JWT_SECRET);
+        return decoded?.userId || null;
+    } catch {
         return null;
     }
 }
 
 wss.on("connection", function connection(ws: WebSocket, request) {
-    console.log("New WebSocket connection attempt...");
+    console.log("🌐 New WebSocket connection attempt...");
 
-    // ✅ Parse query params
+    // Parse Token from Query Params
     const url = request.url;
     if (!url) {
-        console.log("❌ Rejected: No URL provided");
         ws.close(1008, "No URL provided");
         return;
     }
 
     const queryParams = new URLSearchParams(url.split("?")[1]);
     const token = queryParams.get("token") || "";
+
     console.log("🔑 Token received:", token);
 
     const userId = checkUser(token);
     if (!userId) {
-        console.log("❌ Rejected: Invalid token");
-        ws.close(1008, "Invalid or missing token");
+        console.log("❌ Invalid token. Closing connection.");
+        ws.close(1008, "Invalid token");
         return;
     }
 
     console.log(`✅ WebSocket connected: userId=${userId}`);
+
     users.push({ userId, rooms: [], ws });
 
+    // 📩 Handle Incoming Messages
     ws.on("message", async function message(data: RawData) {
         try {
-            const messageString = data.toString();
-            const parsedData = JSON.parse(messageString);
+            const parsed = JSON.parse(data.toString());
+            console.log("📨 Message received:", parsed);
 
-            console.log("📩 Message received:", parsedData);
-
-            if (parsedData.type === "join_room") {
-                console.log(`👥 User joined room: ${parsedData.roomId}`);
-                const user = users.find((x) => x.ws === ws);
-                if (user) user.rooms.push(parsedData.roomId);
-            }
-
-            if (parsedData.type === "leave_room") {
-                console.log(`🏃 User left room: ${parsedData.roomId}`);
-                const user = users.find((x) => x.ws === ws);
-                if (user) {
-                    user.rooms = user.rooms.filter((room) => room !== parsedData.roomId);
+            // Join Room
+            if (parsed.type === "join_room") {
+                const user = users.find((u) => u.ws === ws);
+                if (user && !user.rooms.includes(parsed.roomId)) {
+                    user.rooms.push(parsed.roomId);
                 }
+                console.log(`👥 User ${userId} joined room ${parsed.roomId}`);
+                return;
             }
 
-            if (parsedData.type === "chat") {
-                const { roomId, message } = parsedData;
-                console.log(`💬 Chat message received for room ${roomId}:`, message);
+            // Leave Room
+            if (parsed.type === "leave_room") {
+                const user = users.find((u) => u.ws === ws);
+                if (user) {
+                    user.rooms = user.rooms.filter((r) => r !== parsed.roomId);
+                }
+                console.log(`🏃 User ${userId} left room ${parsed.roomId}`);
+                return;
+            }
 
-                // ✅ Check if room exists
-                const room = await prismaClient.room.findUnique({ where: { id: Number(roomId) } });
-                if (!room) {
+            // ✏️ Chat / Drawing Message
+            if (parsed.type === "chat") {
+                const { roomId, message } = parsed;
+
+                // 1️⃣ Check if user exists in DB
+                const dbUser = await prismaClient.user.findUnique({
+                    where: { id: userId },
+                });
+
+                if (!dbUser) {
+                    console.log(`❌ DB User not found: ${userId}`);
+                    ws.send(JSON.stringify({ type: "error", message: "Unauthorized user" }));
+                    return;
+                }
+
+                // 2️⃣ Check if room exists
+                const dbRoom = await prismaClient.room.findUnique({
+                    where: { id: Number(roomId) },
+                });
+
+                if (!dbRoom) {
                     ws.send(JSON.stringify({ type: "error", message: "Room not found" }));
                     return;
                 }
 
-            
+                // 3️⃣ Save chat/drawing event
                 await prismaClient.chat.create({
                     data: {
                         roomId: Number(roomId),
@@ -88,10 +109,12 @@ wss.on("connection", function connection(ws: WebSocket, request) {
                     },
                 });
 
-                // ✅ Broadcast message to room
-                users.forEach((user) => {
-                    if (user.rooms.includes(parsedData.roomId)) {
-                        user.ws.send(
+                console.log(`💬 Chat saved in DB for room ${roomId}`);
+
+                // 4️⃣ Broadcast to connected users in this room
+                users.forEach((u) => {
+                    if (u.rooms.includes(roomId)) {
+                        u.ws.send(
                             JSON.stringify({
                                 type: "chat",
                                 message,
@@ -101,24 +124,26 @@ wss.on("connection", function connection(ws: WebSocket, request) {
                     }
                 });
 
-                console.log("✅ Message broadcasted to room:", roomId);
+                console.log(`📡 Broadcast completed for room ${roomId}`);
             }
-        } catch (error) {
-            console.error("❌ Error processing message:", error);
-            ws.send(JSON.stringify({ type: "error", message: "Invalid JSON format" }));
+        } catch (err) {
+            console.error("❌ Error handling WS message:", err);
+            ws.send(JSON.stringify({ type: "error", message: "Invalid request" }));
         }
     });
 
-    // ✅ Handle WebSocket disconnect
+    // 🚪 Handle Disconnect
     ws.on("close", () => {
         console.log(`❌ Disconnected user: ${userId}`);
-        users = users.filter((user) => user.ws !== ws);
+        users = users.filter((u) => u.ws !== ws);
     });
 
-    // ✅ Heartbeat (Prevent Connection Timeout)
-    setInterval(() => {
+    // ❤️ Heartbeat to prevent Heroku / Vercel timeout
+    const interval = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ type: "ping" }));
         }
-    }, 30000);
+    }, 25000);
+
+    ws.on("close", () => clearInterval(interval));
 });
