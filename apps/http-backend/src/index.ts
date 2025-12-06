@@ -1,8 +1,8 @@
 import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import Jwt from "jsonwebtoken";
-import { middleware } from "./middleware.js";  
-import { JWT_SECRET } from "@repo/backend-common/config";  
+import { middleware } from "./middleware.js";
+import { JWT_SECRET } from "@repo/backend-common/config";
 import { prismaClient } from "@repo/db/client";
 import {
   CreateUserSchema,
@@ -14,60 +14,68 @@ import cors from "cors";
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:3000' ,
-  credentials: true,  
-  allowedHeaders: ['Content-Type', 'Authorization']  
+  origin: 'http://localhost:3001',
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Signup Route
 //@ts-ignore
 app.post("/signup", async (req: Request, res: Response) => {
-    const parseResult = CreateUserSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res.status(400).json({ message: "Invalid format", error: parseResult.error.issues });
-    }
-    const { username, password, firstName, lastName } = parseResult.data;
-
-    const existingUser = await prismaClient.user.findUnique({
-      where: { email: username },
-    });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    try {
-      const user = await prismaClient.user.create({
-        data: { email: username, password: hashedPassword, name: `${firstName} ${lastName}`, photo: "" },
-      });
-      res.status(201).json({ message: "User signed up successfully", userId: user.id });
-    } catch (error: any) {
-      console.error("Error creating user:", error);  
-      res.status(500).json({
-        message: "An error occurred while creating the user",
-        error: error.message || "Unknown error",
-      });
-    }
+  const parseResult = CreateUserSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({ message: "Invalid format", error: parseResult.error.issues });
   }
+  const { username, password, firstName, lastName } = parseResult.data;
+
+  const existingUser = await prismaClient.user.findUnique({
+    where: { email: username },
+  });
+  if (existingUser) return res.status(400).json({ message: "User already exists" });
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const user = await prismaClient.user.create({
+      data: { email: username, password: hashedPassword, name: `${firstName} ${lastName}`, photo: "" },
+    });
+    res.status(201).json({ message: "User signed up successfully", userId: user.id });
+  } catch (error: any) {
+    console.error("Error creating user:", error);
+    res.status(500).json({
+      message: "An error occurred while creating the user",
+      error: error.message || "Unknown error",
+    });
+  }
+}
 );
 
 // Signin Route
 //@ts-ignore
-app.post("/signin",async (req: Request, res: Response) => {
-  
-    const parseResult = signinSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res.status(400).json({ message: "Invalid format", error: parseResult.error.issues });
-    }
-    const { username, password } = parseResult.data;
+app.post("/signin", async (req: Request, res: Response) => {
 
-    const user = await prismaClient.user.findUnique({ where: { email: username }, include:{rooms:true} });
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return res.status(401).json({ message: "Invalid credentials" });
-
-    const token = Jwt.sign({ userId: user.id }, JWT_SECRET);
-    res.json({ token , user});
+  const parseResult = signinSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({ message: "Invalid format", error: parseResult.error.issues });
   }
+  const { username, password } = parseResult.data;
+
+  const user = await prismaClient.user.findUnique({ where: { email: username }, include: { rooms: true } });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) return res.status(401).json({ message: "Invalid credentials" });
+
+  const token = Jwt.sign({ userId: user.id }, JWT_SECRET);
+
+  res.cookie("token", token, {
+    httpOnly: false,     
+    secure: false,       
+    sameSite: "lax",
+    path: "/"
+  });
+
+  res.json({ user , token});
+}
 );
 
 //@ts-ignore
@@ -104,11 +112,11 @@ app.post("/room", middleware, async (req: Request, res: Response) => {
       },
     });
 
-    res.status(201).json({ 
-      message: "Room created", 
-      room 
+    res.status(201).json({
+      message: "Room created",
+      room
     });
-    
+
   } catch (error: any) {
     console.error("Error creating room:", error);
     if (error.code === "P2002") {
@@ -120,8 +128,8 @@ app.post("/room", middleware, async (req: Request, res: Response) => {
 
 
 //@ts-ignore
- //@ts-ignore
- app.get("/me", middleware, async (req: Request, res: Response) => {
+//@ts-ignore
+app.get("/me", middleware, async (req: Request, res: Response) => {
   try {
     if (!req.userId) {
       return res.status(403).json({ message: "Unauthorized: No userId found" });
@@ -146,17 +154,17 @@ app.post("/room", middleware, async (req: Request, res: Response) => {
   }
 });
 
- 
+
 //@ts-ignore
 app.get("/chats/:roomId", async (req, res) => {
   // Debugging
   console.log("Request received for roomId:", req.params.roomId);
   try {
-     
-      const roomId = parseInt(req.params.roomId, 10);
-      if (isNaN(roomId)) {
-          return res.status(400).json({ message: "Invalid roomId" });
-      }
+
+    const roomId = parseInt(req.params.roomId, 10);
+    if (isNaN(roomId)) {
+      return res.status(400).json({ message: "Invalid roomId" });
+    }
 
     const messages = await prismaClient.chat.findMany({
       where: {
@@ -170,8 +178,8 @@ app.get("/chats/:roomId", async (req, res) => {
     res.json({
       messages,
     });
-  } catch (e:any) {
-    console.error("Error:", e); 
+  } catch (e: any) {
+    console.error("Error:", e);
     res.status(500).json({
       error: e.message,
     });
@@ -179,7 +187,7 @@ app.get("/chats/:roomId", async (req, res) => {
 });
 
 //@ts-ignore
- 
+
 app.get("/rooms/:slug", async (req: Request, res: Response) => {
   const slug = req.params.slug;
 
@@ -206,6 +214,100 @@ app.get("/rooms/:slug", async (req: Request, res: Response) => {
 });
 
 
+app.post("/find-user", async (req: Request, res: Response): Promise<void> => {
+  const { email } = req.body;
+
+  const user = await prismaClient.user.findUnique({ where: { email } });
+
+  if (!user) {
+    res.json({});
+    return;
+  }
+
+  res.json({ id: user.id, email: user.email, name: user.name });
+});
+
+
+app.post("/rooms/:roomId/collaborators", middleware, async (req: Request, res: Response): Promise<void> => {
+  const roomIdParam = req.params.roomId;
+
+  if (!roomIdParam) {
+    res.status(400).json({ message: "roomId is required" });
+    return;
+  }
+
+  const roomId = parseInt(roomIdParam, 10);
+  if (isNaN(roomId)) {
+    res.status(400).json({ message: "Invalid roomId" });
+    return;
+  }
+
+  const { userId } = req.body;
+
+  if (!req.userId) {
+    res.status(403).json({ message: "Unauthorized" });
+    return;
+  }
+
+  try {
+    // Check if room exists
+    const room = await prismaClient.room.findUnique({ where: { id: roomId } });
+
+    if (!room) {
+      res.status(404).json({ message: "Room not found" });
+      return;
+    }
+
+    // Only admin can add collaborators
+    if (room.adminId !== req.userId) {
+      res.status(403).json({ message: "Only room admin can add collaborators" });
+      return;
+    }
+
+    // Add collaborator
+    await prismaClient.collaborator.upsert({
+      where: {
+        roomId_userId: { roomId, userId },
+      },
+      create: { roomId, userId },
+      update: {},
+    });
+
+    res.json({ message: "Collaborator added successfully" });
+  } catch (error) {
+    console.error("Error adding collaborator:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
+app.get("/rooms/:roomId/access", middleware, async (req: Request, res: Response): Promise<void> => {
+  const roomId = Number(req.params.roomId);
+
+  if (!req.userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const room = await prismaClient.room.findUnique({ where: { id: roomId } });
+
+  if (!room) {
+    res.status(404).json({ message: "Room not found" });
+    return;
+  }
+
+  const isAdmin = room.adminId === req.userId;
+  const isCollaborator = await prismaClient.collaborator.findFirst({
+    where: { roomId, userId: req.userId }
+  });
+
+  if (!isAdmin && !isCollaborator) {
+    res.status(403).json({ message: "Forbidden" });
+    return;
+  }
+
+  res.json({ ok: true });
+});
 
 
 
