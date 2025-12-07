@@ -2,6 +2,5 @@
   "buildCommand": "pnpm turbo run build --filter=exceldraw-frontend",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "outputDirectory": "apps/exceldraw-frontend/.next",
-  "rootDirectory": "apps/exceldraw-frontend"
+  "outputDirectory": "apps/exceldraw-frontend/.next"
 }

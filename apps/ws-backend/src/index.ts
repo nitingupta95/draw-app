@@ -192,4 +192,4 @@ wss.on("connection", async function connection(ws: WebSocket, request) {
     ws.on("close", () => clearInterval(keepAlive));
 });
 
-console.log("🚀 WebSocket Server running on ws://localhost:8080");
+console.log("🚀 WebSocket Server running on ws://localhost:8088");
