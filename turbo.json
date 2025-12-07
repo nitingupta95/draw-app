@@ -5,7 +5,11 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [
+        "apps/exceldraw-frontend/.next/**",
+        "!apps/exceldraw-frontend/.next/cache/**",
+        "packages/**/dist/**"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -19,5 +23,8 @@
     }
   },
   "globalEnv": ["DATABASE_URL"],
-  "globalDependencies": ["db/prisma/schema.prisma", "tsconfig.json"]
+  "globalDependencies": [
+    "db/prisma/schema.prisma",
+    "tsconfig.json"
+  ]
 }
