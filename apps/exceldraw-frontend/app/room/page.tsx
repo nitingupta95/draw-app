@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 interface Room {
-  id: number;
+  id: string;
   slug: string;
 }
 

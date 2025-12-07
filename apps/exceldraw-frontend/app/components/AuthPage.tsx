@@ -6,10 +6,13 @@ import { Mail, Lock, User, ArrowRight, UserCircle2 } from "lucide-react";
 export function AuthPage({
   isSignin,
   handle,
+  loading
 }: {
   isSignin: boolean;
   handle: (e: React.FormEvent<HTMLFormElement>) => void;
+  loading: boolean
 }) {
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-white/70 via-gray-100/50 to-slate-200 dark:from-slate-900 dark:via-slate-950 dark:to-black transition-all">
 
@@ -115,8 +118,17 @@ export function AuthPage({
               font-medium shadow-lg shadow-indigo-500/20 hover:brightness-105 
               transition-all"
             >
-              {isSignin ? "Sign In" : "Create Account"}
-              <ArrowRight className="h-4 w-4" />
+              {loading ? (
+                <motion.div
+                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
+                />
+              ) : (
+                <>
+                  {isSignin ? "Sign In" : "Create Account"}
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+
             </motion.button>
           </form>
         </div>

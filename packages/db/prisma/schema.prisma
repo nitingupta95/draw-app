@@ -14,24 +14,41 @@ model User {
   name     String
   photo    String?
   chats    Chat[]
-  rooms    Room[]
+  rooms    Room[]            @relation("UserRooms") // admin-created rooms
+  collaborators Collaborator[]
 }
 
+
 model Room {
+  id        String   @id @default(uuid())  // UUID room ID
   slug      String   @unique
-   name      String
+  name      String
   createdAt DateTime @default(now())
+
   adminId   String
-  id        Int      @id @default(autoincrement())
-  chats     Chat[]
-  admin     User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  admin     User     @relation("UserRooms", fields: [adminId], references: [id], onDelete: Cascade)
+
+  chats          Chat[]
+  collaborators  Collaborator[]
 }
 
 model Chat {
-  message String
-  userId  String
-  id      Int    @id @default(autoincrement())
-  roomId  Int
-  room    Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())    
+  message   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+
+model Collaborator {
+  id        String   @id @default(uuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])  
 }

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "exports":{
-    "./types":"./src/types.ts"
+    "./types":"./dist/types.js"
   },
   "type": "module",
   "scripts": {

@@ -68,13 +68,13 @@ app.post("/signin", async (req: Request, res: Response) => {
   const token = Jwt.sign({ userId: user.id }, JWT_SECRET);
 
   res.cookie("token", token, {
-    httpOnly: false,     
-    secure: false,       
+    httpOnly: false,
+    secure: false,
     sameSite: "lax",
     path: "/"
   });
 
-  res.json({ user , token});
+  res.json({ user, token });
 }
 );
 
@@ -106,7 +106,7 @@ app.post("/room", middleware, async (req: Request, res: Response) => {
     const room = await prismaClient.room.create({
       data: {
         //@ts-ignore
-        name: parseResult.data.name, // Ensure name is included
+        name: parseResult.data.name,
         slug,
         adminId,
       },
@@ -157,34 +157,16 @@ app.get("/me", middleware, async (req: Request, res: Response) => {
 
 //@ts-ignore
 app.get("/chats/:roomId", async (req, res) => {
-  // Debugging
-  console.log("Request received for roomId:", req.params.roomId);
-  try {
+  const roomId = req.params.roomId;
 
-    const roomId = parseInt(req.params.roomId, 10);
-    if (isNaN(roomId)) {
-      return res.status(400).json({ message: "Invalid roomId" });
-    }
+  const messages = await prismaClient.chat.findMany({
+    where: { roomId },
+    orderBy: { id: "desc" },
+  });
 
-    const messages = await prismaClient.chat.findMany({
-      where: {
-        roomId: roomId,
-      },
-      orderBy: {
-        id: "desc",
-      },
-      take: 100000,
-    });
-    res.json({
-      messages,
-    });
-  } catch (e: any) {
-    console.error("Error:", e);
-    res.status(500).json({
-      error: e.message,
-    });
-  }
+  res.json({ messages });
 });
+
 
 //@ts-ignore
 
@@ -229,16 +211,10 @@ app.post("/find-user", async (req: Request, res: Response): Promise<void> => {
 
 
 app.post("/rooms/:roomId/collaborators", middleware, async (req: Request, res: Response): Promise<void> => {
-  const roomIdParam = req.params.roomId;
+  const roomId = req.params.roomId;
 
-  if (!roomIdParam) {
+  if (!roomId) {
     res.status(400).json({ message: "roomId is required" });
-    return;
-  }
-
-  const roomId = parseInt(roomIdParam, 10);
-  if (isNaN(roomId)) {
-    res.status(400).json({ message: "Invalid roomId" });
     return;
   }
 
@@ -249,66 +225,66 @@ app.post("/rooms/:roomId/collaborators", middleware, async (req: Request, res: R
     return;
   }
 
-  try {
-    // Check if room exists
-    const room = await prismaClient.room.findUnique({ where: { id: roomId } });
+  const room = await prismaClient.room.findUnique({ where: { id: roomId } });
+  if (!room) {
+    res.status(404).json({ message: "Room not found" });
+    return;
+  }
+
+  if (room.adminId !== req.userId) {
+    res.status(403).json({ message: "Only admin can add collaborators" });
+    return;
+  }
+
+  await prismaClient.collaborator.upsert({
+    where: { roomId_userId: { roomId, userId } },
+    create: { roomId, userId },
+    update: {},
+  });
+
+  res.json({ message: "Collaborator added successfully" });
+  return;
+});
+
+app.get(
+  "/rooms/:value/access",
+  middleware,
+  async (req: Request, res: Response): Promise<void> => {
+    const value = req.params.value;
+
+    // Try by id
+    let room = await prismaClient.room.findUnique({ where: { id: value } });
+
+    // Try by slug
+    if (!room) {
+      room = await prismaClient.room.findUnique({ where: { slug: value } });
+    }
 
     if (!room) {
       res.status(404).json({ message: "Room not found" });
       return;
     }
 
-    // Only admin can add collaborators
-    if (room.adminId !== req.userId) {
-      res.status(403).json({ message: "Only room admin can add collaborators" });
+    // Admin always allowed
+    if (room.adminId === req.userId) {
+      res.json({ ok: true, role: "admin" });
       return;
     }
 
-    // Add collaborator
-    await prismaClient.collaborator.upsert({
-      where: {
-        roomId_userId: { roomId, userId },
-      },
-      create: { roomId, userId },
-      update: {},
+    // Check collaborator
+    const collaborator = await prismaClient.collaborator.findFirst({
+      where: { roomId: room.id, userId: req.userId },
     });
 
-    res.json({ message: "Collaborator added successfully" });
-  } catch (error) {
-    console.error("Error adding collaborator:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+    if (collaborator) {
+      res.json({ ok: true, role: "collaborator" });
+      return;
+    }
 
-
-app.get("/rooms/:roomId/access", middleware, async (req: Request, res: Response): Promise<void> => {
-  const roomId = Number(req.params.roomId);
-
-  if (!req.userId) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  const room = await prismaClient.room.findUnique({ where: { id: roomId } });
-
-  if (!room) {
-    res.status(404).json({ message: "Room not found" });
-    return;
-  }
-
-  const isAdmin = room.adminId === req.userId;
-  const isCollaborator = await prismaClient.collaborator.findFirst({
-    where: { roomId, userId: req.userId }
-  });
-
-  if (!isAdmin && !isCollaborator) {
+    // Block everyone else
     res.status(403).json({ message: "Forbidden" });
-    return;
   }
-
-  res.json({ ok: true });
-});
-
+);
 
 
 

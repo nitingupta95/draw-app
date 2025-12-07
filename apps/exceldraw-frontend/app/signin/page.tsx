@@ -3,13 +3,16 @@ import { AuthPage } from "../components/AuthPage";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { HTTP_BACKEND } from "@/config";
+import { useState } from "react";
 
 export default function Signin() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
 
   async function handleSignup(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
+    setLoading(true);
     const formData = new FormData(event.currentTarget);
     const userData = {
       username: formData.get("email"),
@@ -24,12 +27,12 @@ export default function Signin() {
       });
 
       const token = response.data?.token;
-       
-      if (token  ) {
-         
-        localStorage.setItem("Authorization", token); 
 
-        console.log("Token saved:", token); 
+      if (token) {
+
+        localStorage.setItem("Authorization", token);
+
+        console.log("Token saved:", token);
 
         router.push("/room");
       } else {
@@ -38,7 +41,10 @@ export default function Signin() {
     } catch (error: any) {
       console.error("Signup Error:", error.response?.data || error.message);
     }
+    finally {
+    setLoading(false); 
+  }
   }
 
-  return <AuthPage isSignin={true} handle={handleSignup}></AuthPage>;
+  return <AuthPage isSignin={true} handle={handleSignup} loading={loading}></AuthPage>;
 }
