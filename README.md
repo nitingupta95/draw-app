@@ -1,84 +1,174 @@
-# Turborepo starter
+# 🎨 Draw App — Real-Time Collaborative Whiteboard
 
-This Turborepo starter is maintained by the Turborepo core team.
+A powerful, modern real-time collaboration drawing system built using **Next.js**, **WebSockets**, **Express**, **Prisma**, and **Turborepo**.  
+Draw App allows multiple users to sketch, brainstorm, and design together instantly on a shared canvas — with persistent storage and live sync.
 
-## Using this example
+---
 
-Run the following command:
+## 🚀 Features
 
+### ✏️ Drawing Tools
+- Rectangle, Circle, Diamond  
+- Pencil  
+- Arrow  
+- Text  
+- Image insertion  
+- Eraser  
+- Undo / Redo (coming soon)
+
+### ⚡ Real-Time Collaboration
+- WebSocket-powered live drawing sync  
+- Multi-user rooms  
+- JWT-authenticated WebSocket connection  
+- Cursor-based interactions (optional extension)
+
+### 🗄️ Reliable Persistence
+- All drawing operations are saved in PostgreSQL  
+- Prisma-backed ORM  
+- Efficient loading of existing shapes on room join  
+
+### 🧩 Modular Architecture
+- Turborepo-based monorepo  
+- Shared backend utilities  
+- Clean separation of concerns  
+
+---
+
+## 🌐 Live Architecture Overview
+
+```mermaid
+flowchart TD
+    A[Frontend - Next.js Canvas] -- WebSocket --> B[WS Backend - Realtime Updates]
+    A -- REST --> C[HTTP Backend - Prisma + Express]
+    B -- DB Queries --> C
+    C -- Prisma --> D[(PostgreSQL Database)]
+```
+
+---
+
+## 🏗️ Project Structure
+
+```
+.
+├── apps/
+│   ├── frontend/          → Next.js 15 collaborative canvas UI
+│   ├── http-backend/      → Express API (Prisma CRUD)
+│   ├── ws-backend/        → WebSocket real-time sync server
+│
+├── packages/
+│   ├── db/                → Prisma schema + generated client
+│   ├── ui/                → Shared UI components
+│   ├── backend-common/    → Shared env + constants + JWT secret
+│
+├── docker-compose.yml      → Full stack container orchestration
+└── turbo.json
+```
+
+---
+
+## 🐳 Docker Setup (Production-Ready)
+
+### 1️⃣ Start PostgreSQL first
 ```sh
-npx create-turbo@latest
+cd packages/db
+docker compose up -d
 ```
 
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
+Run Prisma migration:
+```sh
+pnpm prisma db push
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
+### 2️⃣ Start full stack
+```sh
+cd ../../
+docker compose up --build
 ```
 
-### Remote Caching
+### Services:
+| Service | URL |
+|--------|-----|
+| Frontend | http://localhost:8000 |
+| HTTP Backend | http://localhost:4000 |
+| WS Backend | ws://localhost:8088 |
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+---
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+## 💬 WebSocket Message Examples
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
+### Join Room
+```json
+{
+  "type": "join_room",
+  "roomId": "abc-123"
+}
 ```
 
-## Useful Links
+### Send Shape Event
+```json
+{
+  "type": "chat",
+  "roomId": "abc-123",
+  "message": "{"shape": {...}}"
+}
+```
 
-Learn more about the power of Turborepo:
+---
 
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+## 📦 Tech Stack
+
+### Frontend
+- Next.js 15
+- React 19
+- Tailwind CSS
+- Canvas API
+- Framer Motion
+
+### Backend
+- Express.js
+- WS WebSocket Server
+- Prisma ORM
+- PostgreSQL
+
+### DevOps
+- Docker
+- Turborepo
+- pnpm workspaces
+- Vercel ready (optional)
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repo  
+2. Create your feature branch  
+3. Write clean commits  
+4. Open a PR 😄  
+
+---
+
+## 📄 License
+
+Licensed under the MIT License.
+
+---
+
+## 📎 Screenshots + Demo (Replace placeholders)
+
+### UI Overview
+![](./assets/screenshots/dashboard.png)
+
+### Canvas Interaction  
+![](./assets/screenshots/canvas.png)
+
+### Real-Time Sync Preview  
+![](./assets/screenshots/realtime.png)
+
+### Demo GIF  
+![](./assets/demo.gif)
+
+---
+
+## ⭐ Support the Project
+
+If you like this project, star the repo — it helps a lot 🙌  
