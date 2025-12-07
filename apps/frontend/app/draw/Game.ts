@@ -145,7 +145,7 @@ export class Game {
     };
 
     mouseMoveHandler = (e: MouseEvent) => {
-        if (!this.isDrawing || this.selectedTool !== "pencil") return;
+        if (!this.isDrawing) return;
 
         const x = e.clientX - this.canvas.getBoundingClientRect().left;
         const y = e.clientY - this.canvas.getBoundingClientRect().top;
@@ -159,7 +159,32 @@ export class Game {
             this.ctx.fill();
         }
     
-        this.clearCanvas();
+        // Always redraw existing shapes
+this.clearCanvas();
+
+// Now draw the preview shape on top
+this.ctx.save();
+this.ctx.strokeStyle = "white";
+this.ctx.lineWidth = 2;
+
+if (this.selectedTool === "pencil") {
+    this.pencilPoints.push({ x, y });
+
+} else if (this.selectedTool === "rect") {
+    this.ctx.strokeRect(this.startX, this.startY, x - this.startX, y - this.startY);
+
+} else if (this.selectedTool === "circle") {
+    const dx = x - this.startX;
+    const dy = y - this.startY;
+    const radius = Math.sqrt(dx * dx + dy * dy) / 2;
+
+    this.ctx.beginPath();
+    this.ctx.arc(this.startX, this.startY, radius, 0, Math.PI * 2);
+    this.ctx.stroke();
+}
+
+this.ctx.restore();
+
     };
 
     mouseUpHandler = (e: MouseEvent) => {

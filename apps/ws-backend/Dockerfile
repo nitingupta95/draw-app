@@ -1,21 +1,16 @@
 FROM node:20
-
 WORKDIR /app
 
-# Copy workspace files
 COPY package.json pnpm-lock.yaml turbo.json ./
 COPY pnpm-workspace.yaml ./
 
-# Copy entire repo for correct workspace resolution
 COPY apps ./apps
 COPY packages ./packages
 
 RUN npm install -g pnpm
-
 RUN pnpm install
 RUN pnpm --filter @repo/db exec prisma generate
+RUN pnpm --filter ws-backend build
 
-RUN pnpm --filter http-backend build
-
-EXPOSE 4000
-CMD ["node", "apps/http-backend/dist/index.js"]
+EXPOSE 8088
+CMD ["node", "apps/ws-backend/dist/index.js"]

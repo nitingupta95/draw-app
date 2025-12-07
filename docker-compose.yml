@@ -1,0 +1,54 @@
+services:
+  http-backend:
+    build:
+      context: .
+      dockerfile: ./apps/http-backend/Dockerfile
+    container_name: draw_app_http
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgrespassword@host.docker.internal:5433/drawapp?schema=public"
+      PORT: 4000
+    ports:
+      - "4000:4000"
+    networks:
+      - draw_network
+
+  ws-backend:
+    build:
+      context: .
+      dockerfile: ./apps/ws-backend/Dockerfile
+    container_name: draw_app_ws
+    environment:
+      PORT: 8088
+      DATABASE_URL: "postgresql://postgres:postgrespassword@host.docker.internal:5433/drawapp?schema=public"
+      HTTP_BACKEND_URL: "http://http-backend:4000"
+    depends_on:
+      http-backend:
+        condition: service_started
+    ports:
+      - "8088:8088"
+    networks:
+      - draw_network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./apps/frontend/Dockerfile
+    container_name: draw_app_frontend
+    environment:
+      NEXT_PUBLIC_WS_URL: "ws://localhost:8088"
+      NEXT_PUBLIC_API_URL: "http://localhost:4000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      http-backend:
+        condition: service_started
+      ws-backend:
+        condition: service_started
+    networks:
+      - draw_network
+
+networks:
+  draw_network:
+
+volumes:
+  postgres_data:
