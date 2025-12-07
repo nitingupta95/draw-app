@@ -1,3 +1,3 @@
 export const HTTP_BACKEND= "http://localhost:4000"
 
-export const WS_URl= "ws://localhost:8080"
+export const WS_URl= "ws://localhost:8088"
