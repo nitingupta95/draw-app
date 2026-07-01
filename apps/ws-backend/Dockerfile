@@ -10,7 +10,7 @@ COPY packages ./packages
 RUN npm install -g pnpm
 RUN pnpm install
 RUN pnpm --filter @repo/db exec prisma generate
-RUN pnpm --filter ws-backend build
+RUN pnpm run build --filter=ws-backend...
 
 EXPOSE 8088
 CMD ["node", "apps/ws-backend/dist/index.js"]

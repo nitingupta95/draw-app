@@ -10,7 +10,7 @@ COPY packages ./packages
 RUN npm install -g pnpm
 
 RUN pnpm install
-RUN pnpm --filter exceldraw-frontend build
+RUN pnpm run build --filter=exceldraw-frontend...
 
 EXPOSE 8000
 CMD ["pnpm", "--filter", "exceldraw-frontend", "start"]

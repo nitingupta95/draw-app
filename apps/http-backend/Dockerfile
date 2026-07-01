@@ -15,7 +15,7 @@ RUN npm install -g pnpm
 RUN pnpm install
 RUN pnpm --filter @repo/db exec prisma generate
 
-RUN pnpm --filter http-backend build
+RUN pnpm run build --filter=http-backend...
 
 EXPOSE 4000
 CMD ["node", "apps/http-backend/dist/index.js"]

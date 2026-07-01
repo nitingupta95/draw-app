@@ -5,7 +5,7 @@ services:
       dockerfile: ./apps/http-backend/Dockerfile
     container_name: draw_app_http
     environment:
-      DATABASE_URL: "postgresql://postgres:postgrespassword@host.docker.internal:5433/drawapp?schema=public"
+      DATABASE_URL: "postgresql://postgres:postgrespassword@host.docker.internal:5434/drawapp?schema=public"
       PORT: 4000
     ports:
       - "4000:4000"
@@ -19,7 +19,7 @@ services:
     container_name: draw_app_ws
     environment:
       PORT: 8088
-      DATABASE_URL: "postgresql://postgres:postgrespassword@host.docker.internal:5433/drawapp?schema=public"
+      DATABASE_URL: "postgresql://postgres:postgrespassword@host.docker.internal:5434/drawapp?schema=public"
       HTTP_BACKEND_URL: "http://http-backend:4000"
     depends_on:
       http-backend:
