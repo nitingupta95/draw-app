@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Draw App",
-  description: "The collaborative draw app",
+  title: "DrawApp - Real-Time Collaborative Whiteboard",
+  description: "Draw, collaborate, and create together in real-time. A collaborative whiteboard for teams to sketch, brainstorm, and bring ideas to life.",
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
