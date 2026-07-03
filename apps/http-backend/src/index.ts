@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import Jwt from "jsonwebtoken";
 import { middleware } from "./middleware.js";
 import { JWT_SECRET } from "@repo/backend-common/config";

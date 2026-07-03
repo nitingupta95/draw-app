@@ -12,10 +12,9 @@
   "dependencies": {
     "@repo/db": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.7",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "express-async-handler": "^1.2.0",
@@ -30,6 +29,7 @@
   "devDependencies": {
     "@repo/backend-common": "workspace:*",
     "@repo/common": "workspace:*",
+    "@types/bcryptjs": "^3.0.0",
     "@types/express": "^5.0.0"
   }
 }

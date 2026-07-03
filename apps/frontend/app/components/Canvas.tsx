@@ -5,7 +5,7 @@ import {
   ArrowRight,
   Circle,
   Diamond,
-  Image,
+ 
   Pencil,
   RectangleHorizontalIcon,
   Eraser,
@@ -142,8 +142,7 @@ function Topbar({
     { id: "circle", icon: <Circle size={18} /> },
     { id: "diamond", icon: <Diamond size={18} /> },
     { id: "arrow", icon: <ArrowRight size={18} /> },
-    { id: "text", icon: <Type size={18} /> },
-    { id: "image", icon: <Image size={18} /> },
+    { id: "text", icon: <Type size={18} /> }, 
     { id: "eraser", icon: <Eraser size={18} /> },
   ] as const;
 
