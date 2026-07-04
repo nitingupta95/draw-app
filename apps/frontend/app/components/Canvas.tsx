@@ -41,7 +41,7 @@ const mockCollaborators = [
 export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [game, setGame] = useState<Game>();
-  const [selectedTool, setSelectedTool] = useState<Tool>("select");
+  const [selectedTool, setSelectedTool] = useState<Tool>("selection");
   const [canEdit, setCanEdit] = useState<boolean>(true);
 
   // BLOCK USERS WHO ARE NOT ADMIN OR COLLABORATOR
@@ -96,7 +96,7 @@ export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }
 
     const g = new Game(canvasRef.current, roomId, socket);
     setGame(g);
-    return () => g.destory();
+    return () => g.destroy();
   }, [canvasRef, roomId, socket]);
 
   useEffect(() => {
@@ -280,11 +280,11 @@ function Topbar({ roomId }: { roomId: string }) {
 /* -------------------------------------------------------------------------- */
 function FloatingToolbar({ selectedTool, setSelectedTool, canEdit }: { selectedTool: Tool, setSelectedTool: (s: Tool) => void, canEdit: boolean }) {
   const tools = [
-    { id: "select", icon: <MousePointer2 size={18} /> },
-    { id: "hand", icon: <Hand size={18} /> },
+    { id: "selection", icon: <MousePointer2 size={18} /> },
+    { id: "cursor", icon: <Hand size={18} /> },
     { id: "pencil", icon: <Pencil size={18} /> },
     { id: "rect", icon: <Square size={18} /> },
-    { id: "ellipse", icon: <Circle size={18} /> },
+    { id: "circle", icon: <Circle size={18} /> },
     { id: "diamond", icon: <Diamond size={18} /> },
     { id: "arrow", icon: <ArrowRight size={18} /> },
     { id: "text", icon: <Type size={18} /> },
@@ -298,7 +298,7 @@ function FloatingToolbar({ selectedTool, setSelectedTool, canEdit }: { selectedT
       className="absolute top-24 sm:top-28 left-1/2 -translate-x-1/2 z-40 flex flex-wrap justify-center items-center gap-1 sm:gap-1.5 p-2 sm:px-3 sm:py-2 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 w-fit max-w-[90vw] sm:max-w-max"
     >
       {tools.map((tool) => {
-        const isDrawingTool = tool.id !== "select" && tool.id !== "hand";
+        const isDrawingTool = tool.id !== "selection" && tool.id !== "cursor";
         const disabled = !canEdit && isDrawingTool;
         return (
           <button
