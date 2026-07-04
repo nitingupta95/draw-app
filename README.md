@@ -34,8 +34,7 @@ Draw App allows multiple users to sketch, brainstorm, and design together instan
 - **Next.js 15:** App Router utilized for both UI rendering and HTTP API Routes
 - **React 19:** Utilizing the latest React concurrent features
 - **Styling & UI:** Tailwind CSS, Framer Motion, Lucide Icons
-- **Canvas Rendering:** Native HTML5 Canvas API
-
+- **Canvas Rendering:** Native HTML5 Canvas
 ### Real-Time Backend
 - **Server:** Node.js running a lightweight `ws` WebSocket Server
 - **Data Access:** Prisma ORM
