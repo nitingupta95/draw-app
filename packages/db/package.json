@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "prisma generate && tsc -b",
+    "generate": "prisma generate",
     "seed": "ts-node seed.ts"
   },
   "dependencies": {
