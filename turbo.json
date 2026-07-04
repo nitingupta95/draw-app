@@ -6,9 +6,9 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [
-        "apps/exceldraw-frontend/.next/**",
-        "!apps/exceldraw-frontend/.next/cache/**",
-        "packages/**/dist/**"
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**"
       ]
     },
     "lint": {
