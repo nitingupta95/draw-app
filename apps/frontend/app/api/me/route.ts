@@ -39,9 +39,9 @@ export async function GET(req: NextRequest) {
     
     const allRooms = [
       ...user.rooms,
-      ...user.collaborators.map(c => c.room)
+      ...user.collaborators.map((c: any) => c.room)
     ];
-    const uniqueRooms = Array.from(new Map(allRooms.map(r => [r.id, r])).values());
+    const uniqueRooms = Array.from(new Map(allRooms.map((r: any) => [r.id, r])).values());
 
     return NextResponse.json({ user: userWithoutPassword, rooms: uniqueRooms });
   } catch (error: any) {
