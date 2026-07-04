@@ -8,22 +8,44 @@ export async function getExistingShapes(roomId: string) {
     const shapes: any[] = [];
     const erasedIds = new Set<string>();
 
-    // Messages are ordered by id desc (newest first). Let's process them properly
-    // or just sort them oldest first
-    const sortedMessages = messages.sort((a: any, b: any) => a.id - b.id);
+    const sortedMessages = messages;
+    const shapesMap = new Map<string, any>();
 
     for (const x of sortedMessages) {
         try {
             const messageData = JSON.parse(x.message);
             if (messageData.erase && Array.isArray(messageData.erase)) {
-                messageData.erase.forEach((id: string) => erasedIds.add(id));
+                messageData.erase.forEach((id: string) => shapesMap.delete(id));
+            } else if (messageData.eraseId) {
+                shapesMap.delete(messageData.eraseId);
             } else if (messageData.shape && messageData.shape.id) {
-                shapes.push(messageData.shape);
+                shapesMap.set(messageData.shape.id, messageData.shape);
+            } else if (messageData.updateId && messageData.updates) {
+                const shape = shapesMap.get(messageData.updateId);
+                if (shape) {
+                    Object.assign(shape, messageData.updates);
+                }
+            } else if (messageData.reorder) {
+                const newMap = new Map<string, any>();
+                for (const id of messageData.reorder) {
+                    if (shapesMap.has(id)) {
+                        newMap.set(id, shapesMap.get(id));
+                        shapesMap.delete(id);
+                    }
+                }
+                for (const [id, shape] of shapesMap.entries()) {
+                    newMap.set(id, shape);
+                }
+                shapesMap.clear();
+                for (const [id, shape] of newMap.entries()) {
+                    shapesMap.set(id, shape);
+                }
             }
         } catch (e) {
             // ignore invalid json
         }
     }
 
-    return shapes.filter(s => !erasedIds.has(s.id));
+    return Array.from(shapesMap.values());
+
 }

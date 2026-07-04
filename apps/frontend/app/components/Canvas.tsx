@@ -41,7 +41,7 @@ const mockCollaborators = [
 export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [game, setGame] = useState<Game>();
-  const [selectedTool, setSelectedTool] = useState<Tool>("selection");
+  const [selectedTool, setSelectedTool] = useState<Tool>("pencil");
   const [canEdit, setCanEdit] = useState<boolean>(true);
 
   // BLOCK USERS WHO ARE NOT ADMIN OR COLLABORATOR
@@ -117,6 +117,25 @@ export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }
     return () => window.removeEventListener("resize", handleResize);
   }, [game]);
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Don't intercept if user is typing in an input or textarea
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          game?.redo();
+        } else {
+          game?.undo();
+        }
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [game]);
+
   return (
     <div className="h-screen w-screen relative overflow-hidden bg-[#FDFDFE] font-sans">
 
@@ -136,7 +155,7 @@ export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }
       <Topbar roomId={roomId} />
 
       {/* Floating Drawing Toolbar */}
-      <FloatingToolbar selectedTool={selectedTool} setSelectedTool={setSelectedTool} canEdit={canEdit} />
+      <FloatingToolbar selectedTool={selectedTool} setSelectedTool={setSelectedTool} canEdit={canEdit} game={game} />
       <ZoomControls />
     </div>
   );
@@ -283,7 +302,7 @@ function Topbar({ roomId }: { roomId: string }) {
 /* -------------------------------------------------------------------------- */
 /*                              FLOATING TOOLBAR                              */
 /* -------------------------------------------------------------------------- */
-function FloatingToolbar({ selectedTool, setSelectedTool, canEdit }: { selectedTool: Tool, setSelectedTool: (s: Tool) => void, canEdit: boolean }) {
+function FloatingToolbar({ selectedTool, setSelectedTool, canEdit, game }: { selectedTool: Tool, setSelectedTool: (s: Tool) => void, canEdit: boolean, game?: Game }) {
   const tools = [
     { id: "selection", icon: <MousePointer2 size={18} /> },
     { id: "cursor", icon: <Hand size={18} /> },
@@ -325,10 +344,10 @@ function FloatingToolbar({ selectedTool, setSelectedTool, canEdit }: { selectedT
 
       <div className="w-px h-6 bg-gray-200 mx-0 sm:mx-1 hidden sm:block" />
       
-      <button disabled={!canEdit} className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all ${!canEdit ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700'}`}>
+      <button onClick={() => game?.undo()} disabled={!canEdit} className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all ${!canEdit ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700'}`}>
         <Undo2 size={18} />
       </button>
-      <button disabled={!canEdit} className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all ${!canEdit ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700'}`}>
+      <button onClick={() => game?.redo()} disabled={!canEdit} className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all ${!canEdit ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700'}`}>
         <Redo2 size={18} />
       </button>
     </motion.div>

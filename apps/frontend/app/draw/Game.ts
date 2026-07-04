@@ -69,6 +69,12 @@ export type Shape =
       src: string;
     });
 
+export type HistoryAction = 
+  | { type: "add"; shapeId: string; shape: Shape }
+  | { type: "erase"; shapes: Shape[] }
+  | { type: "modify"; before: Shape[]; after: Shape[] }
+  | { type: "reorder"; before: string[]; after: string[] };
+
 type ViewState = { scale: number; panX: number; panY: number };
 type Handle = "nw" | "ne" | "se" | "sw";
 
@@ -116,14 +122,20 @@ export class Game {
   private panStartX = 0;
   private panStartY = 0;
 
+  // History / Undo / Redo
+  private undoStack: HistoryAction[] = [];
+  private redoStack: HistoryAction[] = [];
+
   // Multi‑selection
   public selectedShapes: Shape[] = [];
+  private dragStartShapes: Shape[] = [];
   private isDragging = false;
   private dragOffsetX = 0;
   private dragOffsetY = 0;
 
   // Resize
   private isResizing = false;
+  private resizeStartShapes: Shape[] = [];
   private resizeHandle: Handle | null = null;
   private resizeStartBounds: {
     x: number;
@@ -172,6 +184,104 @@ export class Game {
 
   setCanEdit(canEdit: boolean) {
     this.canEdit = canEdit;
+  }
+
+  historyPush(action: HistoryAction) {
+    this.undoStack.push(action);
+    this.redoStack = [];
+  }
+
+  undo() {
+    if (this.undoStack.length === 0) return;
+    const action = this.undoStack.pop()!;
+    this.redoStack.push(action);
+
+    switch (action.type) {
+      case "add":
+        this.existingShapes = this.existingShapes.filter(s => s.id !== action.shapeId);
+        this.sendErase(action.shapeId);
+        break;
+      case "erase":
+        action.shapes.forEach(s => {
+          this.existingShapes.push(s);
+          this.sendShape(s);
+        });
+        break;
+      case "modify":
+        action.before.forEach(beforeShape => {
+          const idx = this.existingShapes.findIndex(s => s.id === beforeShape.id);
+          if (idx !== -1) {
+            this.existingShapes[idx] = beforeShape;
+          } else {
+            this.existingShapes.push(beforeShape);
+          }
+          this.sendShape(beforeShape);
+        });
+        break;
+      case "reorder":
+        const shapeMap = new Map(this.existingShapes.map(s => [s.id, s]));
+        const newShapes: Shape[] = [];
+        for (const id of action.before) {
+          if (shapeMap.has(id)) {
+            newShapes.push(shapeMap.get(id)!);
+            shapeMap.delete(id);
+          }
+        }
+        for (const s of shapeMap.values()) {
+          newShapes.push(s);
+        }
+        this.existingShapes = newShapes;
+        this.sendReorder(action.before);
+        break;
+    }
+    this.selectedShapes = [];
+    this.clearCanvas();
+  }
+
+  redo() {
+    if (this.redoStack.length === 0) return;
+    const action = this.redoStack.pop()!;
+    this.undoStack.push(action);
+
+    switch (action.type) {
+      case "add":
+        this.existingShapes.push(action.shape);
+        this.sendShape(action.shape);
+        break;
+      case "erase":
+        const idsToErase = new Set(action.shapes.map(s => s.id));
+        this.existingShapes = this.existingShapes.filter(s => !idsToErase.has(s.id));
+        action.shapes.forEach(s => this.sendErase(s.id));
+        break;
+      case "modify":
+        action.after.forEach(afterShape => {
+          const idx = this.existingShapes.findIndex(s => s.id === afterShape.id);
+          if (idx !== -1) {
+            this.existingShapes[idx] = afterShape;
+          } else {
+            this.existingShapes.push(afterShape);
+          }
+          this.sendShape(afterShape);
+        });
+        break;
+      case "reorder":
+        const shapeMap = new Map(this.existingShapes.map(s => [s.id, s]));
+        const newShapes: Shape[] = [];
+        for (const id of action.after) {
+          if (shapeMap.has(id)) {
+            newShapes.push(shapeMap.get(id)!);
+            shapeMap.delete(id);
+          }
+        }
+        for (const s of shapeMap.values()) {
+          newShapes.push(s);
+        }
+        this.existingShapes = newShapes;
+        this.sendReorder(action.after);
+        break;
+    }
+    this.selectedShapes = [];
+    this.clearCanvas();
   }
 
   setTool(tool: Tool) {
@@ -332,19 +442,6 @@ export class Game {
     try {
       const message = JSON.parse(event.data);
 
-      if (message.type === "reorder" && message.roomId === this.roomId) {
-        const order = message.order as string[];
-        const shapeMap = new Map(this.existingShapes.map((s) => [s.id, s]));
-        const newOrder = order
-          .map((id) => shapeMap.get(id))
-          .filter((s) => s !== undefined) as Shape[];
-        if (newOrder.length === this.existingShapes.length) {
-          this.existingShapes = newOrder;
-          this.clearCanvas();
-        }
-        return;
-      }
-
       if (message.type !== "chat" || message.roomId !== this.roomId) return;
 
       const payload = JSON.parse(message.message);
@@ -365,6 +462,26 @@ export class Game {
           this.existingShapes.push(shape);
         }
         this.clearCanvas();
+      } else if (payload.updateId && payload.updates) {
+        const existingIndex = this.existingShapes.findIndex((s) => s.id === payload.updateId);
+        if (existingIndex !== -1) {
+          Object.assign(this.existingShapes[existingIndex], payload.updates);
+          const selIndex = this.selectedShapes.findIndex((s) => s.id === payload.updateId);
+          if (selIndex !== -1) {
+            Object.assign(this.selectedShapes[selIndex], payload.updates);
+          }
+          this.clearCanvas();
+        }
+      } else if (payload.reorder) {
+        const order = payload.reorder as string[];
+        const shapeMap = new Map(this.existingShapes.map((s) => [s.id, s]));
+        const newOrder = order
+          .map((id) => shapeMap.get(id))
+          .filter((s) => s !== undefined) as Shape[];
+        if (newOrder.length === this.existingShapes.length) {
+          this.existingShapes = newOrder;
+          this.clearCanvas();
+        }
       } else if (payload.eraseId) {
         this.existingShapes = this.existingShapes.filter(
           (s) => s.id !== payload.eraseId,
@@ -725,8 +842,8 @@ export class Game {
   private sendReorder(order: string[]) {
     this.socket.send(
       JSON.stringify({
-        type: "reorder",
-        order,
+        type: "chat",
+        message: JSON.stringify({ reorder: order }),
         roomId: this.roomId,
       }),
     );
@@ -959,6 +1076,7 @@ export class Game {
     if (hit) {
       this.existingShapes = this.existingShapes.filter((s) => s.id !== hit.id);
       this.selectedShapes = this.selectedShapes.filter((s) => s.id !== hit.id);
+      this.historyPush({ type: "erase", shapes: [hit] });
       this.sendErase(hit.id);
       this.clearCanvas();
     }
@@ -1046,6 +1164,7 @@ export class Game {
       this.sendUpdate(existingId, updates);
       const index = this.existingShapes.findIndex((s) => s.id === existingId);
       if (index !== -1) {
+        const beforeShape = JSON.parse(JSON.stringify(this.existingShapes[index]));
         const shape = this.existingShapes[index] as any;
         shape.content = content;
         shape.x = x;
@@ -1056,6 +1175,8 @@ export class Game {
           (s) => s.id === existingId,
         );
         if (selIndex !== -1) this.selectedShapes[selIndex] = shape;
+        const afterShape = JSON.parse(JSON.stringify(shape));
+        this.historyPush({ type: "modify", before: [beforeShape], after: [afterShape] });
         this.clearCanvas();
       }
     } else {
@@ -1072,6 +1193,7 @@ export class Game {
         opacity: 100,
       };
       this.existingShapes.push(shape);
+      this.historyPush({ type: "add", shapeId: shape.id, shape });
       this.clearCanvas();
       this.sendShape(shape);
     }
@@ -1132,6 +1254,7 @@ export class Game {
           };
           this.imageCache.set(src, img);
           this.existingShapes.push(shape);
+          this.historyPush({ type: "add", shapeId: shape.id, shape });
           this.clearCanvas();
           this.sendShape(shape);
         };
@@ -1166,6 +1289,7 @@ export class Game {
         const handle = this.hitTestHandle(x, y, bounds);
         if (handle) {
           this.isResizing = true;
+          this.resizeStartShapes = JSON.parse(JSON.stringify(this.selectedShapes));
           this.resizeHandle = handle;
           this.resizeStartBounds = { ...bounds };
           this.resizeStartMouse = { x, y };
@@ -1191,6 +1315,7 @@ export class Game {
         ) {
           if (this.canEdit) {
             this.isDragging = true;
+            this.dragStartShapes = JSON.parse(JSON.stringify(this.selectedShapes));
             const first = this.selectedShapes[0];
             let anchorX: number, anchorY: number;
             switch (first.type) {
@@ -1256,6 +1381,7 @@ export class Game {
         // Start dragging
         if (this.canEdit && this.selectedShapes.length > 0) {
           this.isDragging = true;
+          this.dragStartShapes = JSON.parse(JSON.stringify(this.selectedShapes));
           const first = this.selectedShapes[0];
           let anchorX: number, anchorY: number;
           switch (first.type) {
@@ -1631,6 +1757,11 @@ export class Game {
       this.resizeHandle = null;
       this.resizeStartBounds = null;
       this.resizeStartMouse = null;
+      this.historyPush({
+        type: "modify",
+        before: this.resizeStartShapes,
+        after: JSON.parse(JSON.stringify(this.selectedShapes))
+      });
       this.sendUpdate(this.selectedShapes[0].id, this.selectedShapes[0]);
       return;
     }
@@ -1642,6 +1773,11 @@ export class Game {
       this.selectedShapes.length > 0
     ) {
       this.isDragging = false;
+      this.historyPush({
+        type: "modify",
+        before: this.dragStartShapes,
+        after: JSON.parse(JSON.stringify(this.selectedShapes))
+      });
       for (const shape of this.selectedShapes) {
         this.sendUpdate(shape.id, shape);
       }
@@ -1732,6 +1868,7 @@ export class Game {
 
     if (!shape) return;
     this.existingShapes.push(shape);
+    this.historyPush({ type: "add", shapeId: shape.id, shape });
     this.clearCanvas();
     this.sendShape(shape);
   };
