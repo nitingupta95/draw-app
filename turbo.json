@@ -22,7 +22,7 @@
       "persistent": true
     }
   },
-  "globalEnv": ["DATABASE_URL"],
+  "globalEnv": ["DATABASE_URL", "JWT_SECRET", "ENABLE_EXPERIMENTAL_COREPACK", "NEXT_PUBLIC_WS_URL"],
   "globalDependencies": [
     "db/prisma/schema.prisma",
     "tsconfig.json"
