@@ -269,19 +269,6 @@ export function AuthPage({
               </div>
             )}
 
-            {/* Remember me / Forgot password */}
-            {isSignin && (
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-3.5 h-3.5 rounded border-card-border accent-primary" />
-                  <span className="text-sm text-muted-foreground">Remember me</span>
-                </label>
-                <button type="button" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors">
-                  Forgot password?
-                </button>
-              </div>
-            )}
-
             {/* Submit */}
             <button type="submit" disabled={loading}
               className="w-full flex justify-center items-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-glow-sm hover:shadow-glow-md hover:bg-primary-dark transition-all disabled:opacity-60 disabled:cursor-not-allowed"
