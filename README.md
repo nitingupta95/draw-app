@@ -247,12 +247,15 @@ This project is licensed under the MIT License.
 ## 📎 Screenshots  
 
 ### UI Overview
- 
----<img width="1444" height="713" alt="Screenshot 2026-07-04 at 2 59 54 PM" src="https://github.com/user-attachments/assets/1c6b5d28-dff3-4f99-8924-280ed85cc626" />
-<img width="1172" height="821" alt="Screenshot 2026-07-04 at 2 59 38 PM" src="https://github.com/user-attachments/assets/7bbe5057-141b-4224-b96b-33b6436c793e" />
-<img width="1413" height="773" alt="Screenshot 2026-07-04 at 2 59 22 PM" src="https://github.com/user-attachments/assets/075ea25b-835e-4c1a-942b-3f852373420f" />
-<img width="884" height="663" alt="Screenshot 2026-07-04 at 2 53 50 PM" src="https://github.com/user-attachments/assets/45757ea4-dcd0-4e86-9925-c6cec76aa8fe" />
-<img width="868" height="708" alt="Screenshot 2026-07-04 at 2 53 41 PM" src="https://github.com/user-attachments/assets/8a120b5b-d19a-4e44-9c16-278009d8e183" />
+ <img width="868" height="708" alt="Screenshot 2026-07-04 at 2 53 41 PM" src="https://github.com/user-attachments/assets/8a120b5b-d19a-4e44-9c16-278009d8e183" />
+ <img width="884" height="663" alt="Screenshot 2026-07-04 at 2 53 50 PM" src="https://github.com/user-attachments/assets/45757ea4-dcd0-4e86-9925-c6cec76aa8fe" />
+ <img width="1413" height="773" alt="Screenshot 2026-07-04 at 2 59 22 PM" src="https://github.com/user-attachments/assets/075ea25b-835e-4c1a-942b-3f852373420f" />
+ <img width="1172" height="821" alt="Screenshot 2026-07-04 at 2 59 38 PM" src="https://github.com/user-attachments/assets/7bbe5057-141b-4224-b96b-33b6436c793e" />
+<img width="1444" height="713" alt="Screenshot 2026-07-04 at 2 59 54 PM" src="https://github.com/user-attachments/assets/1c6b5d28-dff3-4f99-8924-280ed85cc626" />
+
+---
+
+
 
 
 ## ⭐ Support the Project
