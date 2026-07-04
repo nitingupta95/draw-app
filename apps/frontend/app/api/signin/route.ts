@@ -3,7 +3,7 @@ import { prismaClient } from "@repo/db/client";
 import { signinSchema } from "@repo/common/types";
 import bcrypt from "bcryptjs";
 import Jwt from "jsonwebtoken";
-import { JWT_SECRET } from "@repo/backend-common/config";
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export async function POST(req: NextRequest) {
   try {

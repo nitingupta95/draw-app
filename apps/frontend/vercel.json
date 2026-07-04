@@ -1,0 +1,5 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=exceldraw-frontend...",
+  "installCommand": "cd ../.. && pnpm install"
+}

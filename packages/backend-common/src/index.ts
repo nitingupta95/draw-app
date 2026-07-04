@@ -1,2 +1,3 @@
-const JWT_SECRET = 'nitingupta7878';  
+const JWT_SECRET = process.env.JWT_SECRET;
 export { JWT_SECRET };
+    

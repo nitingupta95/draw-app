@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { JWT_SECRET } from "@repo/backend-common/config";
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export function authenticate(req: NextRequest): string | null {
   const authHeader = req.headers.get("authorization");
