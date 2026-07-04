@@ -1,155 +1,247 @@
 # 🎨 Draw App — Real-Time Collaborative Whiteboard
 
-A powerful, modern real-time collaboration drawing system built using **Next.js**, **WebSockets**, **Express**, **Prisma**, and **Turborepo**.  
-Draw App allows multiple users to sketch, brainstorm, and design together instantly on a shared canvas — with persistent storage and live sync.
+A powerful, modern real-time collaboration drawing system built using **Next.js**, **WebSockets**, **Prisma**, and **Turborepo**.  
+Draw App allows multiple users to sketch, brainstorm, and design together instantly on a shared canvas — with persistent storage and live synchronization.
 
 ---
 
-## 🚀 Features
+## 🚀 Core Features
 
-### ✏️ Drawing Tools
-- Rectangle, Circle, Diamond  
-- Pencil  
-- Arrow  
-- Text  
-- Image insertion  
-- Eraser  
-- Undo / Redo (coming soon)
+### ✏️ Extensive Drawing Tools
+- **Shapes:** Rectangle, Circle, Diamond, Line  
+- **Freehand:** Pencil  
+- **Pointers:** Arrow  
+- **Media:** Text and Image insertion  
+- **Modifiers:** Eraser, Selection, and Marquee Tool
+- **History:** Full Undo / Redo functionality
 
 ### ⚡ Real-Time Collaboration
-- WebSocket-powered live drawing sync  
-- Multi-user rooms  
-- JWT-authenticated WebSocket connection  
-- Cursor-based interactions (optional extension)
+- **Low Latency:** WebSocket-powered live drawing synchronization  
+- **Rooms & Access Control:** Multi-user rooms with Admin and Collaborator roles
+- **Security:** JWT-authenticated WebSocket connections  
+- **Extensibility:** Cursor-based interactions (optional extension)
 
 ### 🗄️ Reliable Persistence
-- All drawing operations are saved in PostgreSQL  
-- Prisma-backed ORM  
-- Efficient loading of existing shapes on room join  
-
-### 🧩 Modular Architecture
-- Turborepo-based monorepo  
-- Shared backend utilities  
-- Clean separation of concerns  
+- **Database:** All drawing operations and chat messages are saved in PostgreSQL  
+- **ORM:** Prisma-backed schema  
+- **State Hydration:** Efficient loading of existing shapes upon joining a room  
 
 ---
 
-## 🌐 Live Architecture Overview
+## 📦 Tech Stack
+
+### Frontend & API (Monolithic UI layer)
+- **Next.js 15:** App Router utilized for both UI rendering and HTTP API Routes
+- **React 19:** Utilizing the latest React concurrent features
+- **Styling & UI:** Tailwind CSS, Framer Motion, Lucide Icons
+- **Canvas Rendering:** Native HTML5 Canvas API
+
+### Real-Time Backend
+- **Server:** Node.js running a lightweight `ws` WebSocket Server
+- **Data Access:** Prisma ORM
+- **Database:** PostgreSQL
+
+### Infrastructure & DevOps
+- **Monorepo Management:** Turborepo & npm workspaces
+- **Containerization:** Docker & Docker Compose
+- **Deployment:** Vercel-ready for the frontend
+
+---
+
+## 🌐 Application Architecture
+
+The system is designed with a clear separation between the HTTP REST layer (for authentication, room management, etc.) and the WebSocket layer (for high-frequency drawing events).
 
 ```mermaid
 flowchart TD
-    A[Frontend - Next.js Canvas] -- WebSocket --> B[WS Backend - Realtime Updates]
-    A -- REST --> C[HTTP Backend - Prisma + Express]
-    B -- DB Queries --> C
-    C -- Prisma --> D[(PostgreSQL Database)]
+    Client[Browser Canvas Client]
+    
+    subgraph Frontend Application
+        NextUI[Next.js React UI]
+        NextAPI[Next.js API Routes]
+    end
+    
+    subgraph Real-Time Service
+        WSServer[Node.js WebSocket Server]
+    end
+    
+    DB[(PostgreSQL Database)]
+
+    Client <-->|REST / JSON| NextUI
+    Client <-->|REST / JSON| NextAPI
+    Client <-->|ws:// Real-time Sync| WSServer
+    
+    NextAPI <-->|Prisma ORM| DB
+    WSServer <-->|Prisma ORM| DB
 ```
 
 ---
 
 ## 🏗️ Project Structure
 
-```
+This repository is structured as a Turborepo monorepo, separating the applications and shared packages into modular units.
+
+```text
 .
 ├── apps/
-│   ├── frontend/          → Next.js 15 collaborative canvas UI
-│   ├── http-backend/      → Express API (Prisma CRUD)
-│   ├── ws-backend/        → WebSocket real-time sync server
+│   ├── frontend/          → Next.js 15 collaborative canvas UI + API Routes (Port 8000)
+│   ├── ws-backend/        → Node.js WebSocket real-time sync server (Port 8088)
 │
 ├── packages/
-│   ├── db/                → Prisma schema + generated client
+│   ├── db/                → Prisma schema, migrations, and generated client
 │   ├── ui/                → Shared UI components
-│   ├── backend-common/    → Shared env + constants + JWT secret
+│   ├── backend-common/    → Shared server-side constants & config (e.g., JWT secret)
+│   ├── common/            → Shared types and validation schemas
 │
-├── docker-compose.yml      → Full stack container orchestration
-└── turbo.json
+├── docker-compose.yml     → Full stack container orchestration
+└── turbo.json             → Turborepo pipeline configuration
 ```
+
+---
+
+## 🗃️ Database Schema Overview
+
+The database uses PostgreSQL via Prisma. Key models include:
+
+- **User**: Represents authenticated users.
+- **Room**: Represents drawing rooms. A room has one `admin`.
+- **Collaborator**: An intersection table mapping users to rooms with permissions (`canEdit`).
+- **Chat**: This table acts as an event log. It stores actual text chats *as well as* serialized JSON representing canvas shapes drawn by users. This provides an immutable history of the canvas state.
+
+---
+
+## ⚙️ Environment Variables
+
+Create a `.env` file in the root directory. You will need the following variables:
+
+```env
+# The connection string for your PostgreSQL database
+DATABASE_URL="postgresql://user:password@localhost:5432/drawapp?schema=public"
+
+# The secret key for signing JWT tokens
+JWT_SECRET="your-super-secret-jwt-key"
+```
+
+---
+
+## 💻 Local Development Setup
+
+### Prerequisites
+- Node.js >= 18
+- npm (v11+ recommended)
+- PostgreSQL running locally or remotely
+
+### 1. Install Dependencies
+Install dependencies across all workspaces from the project root:
+```bash
+npm install
+```
+
+### 2. Database Setup & Migration
+Push the Prisma schema to your PostgreSQL database and generate the Prisma Client:
+```bash
+cd packages/db
+npx prisma db push
+npx prisma generate
+cd ../../
+```
+
+### 3. Run the Development Servers
+Start all applications concurrently using Turborepo:
+```bash
+npm run dev
+```
+- The **Frontend** will be available at: `http://localhost:8000`
+- The **WebSocket Server** will run at: `ws://localhost:8088`
 
 ---
 
 ## 🐳 Docker Setup (Production-Ready)
 
-### 1️⃣ Start PostgreSQL first
-```sh
+If you prefer using Docker to run the entire stack locally without installing Node or Postgres:
+
+### 1. Start PostgreSQL
+Spin up the database container:
+```bash
 cd packages/db
 docker compose up -d
 ```
 
-Run Prisma migration:
-```sh
-pnpm prisma db push
+Push the database schema:
+```bash
+npx prisma db push
 ```
 
-### 2️⃣ Start full stack
-```sh
-cd ../../
+### 2. Start Full Stack
+From the root directory, build and start all services:
+```bash
 docker compose up --build
 ```
 
-### Services:
-| Service | URL |
-|--------|-----|
-| Frontend | http://localhost:8000 |
-| HTTP Backend | http://localhost:4000 |
-| WS Backend | ws://localhost:8088 |
-
 ---
 
-## 💬 WebSocket Message Examples
+## 💬 WebSocket Communication Protocol
 
-### Join Room
+The WebSocket server expects a `token` in the connection query string for JWT authentication:
+`ws://localhost:8088?token=YOUR_JWT_TOKEN`
+
+### Events
+
+#### Join Room
+Sent by the client when they navigate to a specific canvas room. Validates user permissions.
 ```json
 {
   "type": "join_room",
-  "roomId": "abc-123"
+  "roomId": "room-uuid"
 }
 ```
 
-### Send Shape Event
+#### Send Shape Event (Chat type)
+Drawing strokes and actions are serialized and sent over the `chat` event type.
 ```json
 {
   "type": "chat",
-  "roomId": "abc-123",
-  "message": "{"shape": {...}}"
+  "roomId": "room-uuid",
+  "message": "{\"shape\": {\"id\": \"123\", \"type\": \"rect\", \"x\": 10, \"y\": 10, ...}}"
+}
+```
+
+#### Leave Room
+```json
+{
+  "type": "leave_room",
+  "roomId": "room-uuid"
 }
 ```
 
 ---
 
-## 📦 Tech Stack
+## 📜 Scripts Reference
 
-### Frontend
-- Next.js 15
-- React 19
-- Tailwind CSS
-- Canvas API
-- Framer Motion
+Useful npm scripts defined in the root `package.json`:
 
-### Backend
-- Express.js
-- WS WebSocket Server
-- Prisma ORM
-- PostgreSQL
-
-### DevOps
-- Docker
-- Turborepo
-- pnpm workspaces
-- Vercel ready (optional)
+- `npm run dev`: Starts the development servers across all apps using Turborepo.
+- `npm run build`: Builds all applications for production.
+- `npm run start`: Runs the built production servers concurrently.
+- `npm run dev:frontend`: Starts *only* the Next.js frontend application.
+- `npm run dev:ws`: Starts *only* the WebSocket server.
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repo  
-2. Create your feature branch  
-3. Write clean commits  
-4. Open a PR 😄  
+Contributions are welcome! Please follow these steps:
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-Licensed under the MIT License.
+This project is licensed under the MIT License.
 
 ---
 
@@ -170,4 +262,4 @@ Licensed under the MIT License.
 
 ## ⭐ Support the Project
 
-If you like this project, star the repo — it helps a lot 🙌  
+If you like this project, please consider starring the repository — it helps a lot 🙌
