@@ -47,9 +47,10 @@ export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }
   // BLOCK USERS WHO ARE NOT ADMIN OR COLLABORATOR
   useEffect(() => {
     async function checkAccess() {
-      const token = localStorage.getItem("Authorization");
+      let token = localStorage.getItem("Authorization");
+      if (token && !token.startsWith("Bearer ")) token = `Bearer ${token}`;
       const res = await fetch(`${HTTP_BACKEND}/rooms/${roomId}/access`, {
-        headers: { Authorization: `Bearer ${token} ?? ` },
+        headers: { Authorization: token || "" },
       });
 
       if (res.status === 403) {
@@ -60,7 +61,7 @@ export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Authorization: token || "",
               },
               body: JSON.stringify({ passcode })
             });
@@ -105,12 +106,16 @@ export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }
       const canvas = canvasRef.current;
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      requestAnimationFrame(() => {});
+      if (game) {
+        requestAnimationFrame(() => {
+          game.clearCanvas();
+        });
+      }
     }
     window.addEventListener("resize", handleResize);
     handleResize(); 
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [game]);
 
   return (
     <div className="h-screen w-screen relative overflow-hidden bg-[#FDFDFE] font-sans">
@@ -122,8 +127,8 @@ export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }
       {/* Canvas */}
       <canvas
         ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
+        width={typeof window !== "undefined" ? window.innerWidth : 800}
+        height={typeof window !== "undefined" ? window.innerHeight : 600}
         className="absolute inset-0 cursor-crosshair"
       />
 
