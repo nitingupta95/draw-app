@@ -1,185 +1,350 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, Lock, User, ArrowRight, UserCircle2 } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Users, Cloud, Zap } from "lucide-react";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+const features = [
+  { icon: Users, title: "Real-time Collaboration", desc: "See changes instantly as your team draws and brainstorms together." },
+  { icon: Cloud,  title: "Persistent & Secure",   desc: "All your boards are saved automatically and securely in the cloud." },
+  { icon: Zap,   title: "Powerful & Easy to Use", desc: "Beautiful tools and a simple interface to fuel your creativity." },
+];
 
 export function AuthPage({
   isSignin,
   handle,
-  loading
+  loading,
 }: {
   isSignin: boolean;
   handle: (e: React.FormEvent<HTMLFormElement>) => void;
-  loading: boolean
+  loading: boolean;
 }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (localStorage.getItem("Authorization")) {
+      router.push("/room");
+    }
+  }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-white/70 via-gray-100/50 to-slate-200 dark:from-slate-900 dark:via-slate-950 dark:to-black transition-all">
+    <div className="min-h-screen flex bg-background">
 
-      {/* Floating Gradient Blurs (Premium Effect) */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full
-        bg-gradient-to-br from-indigo-400/40 to-violet-500/40 blur-3xl dark:opacity-30" />
+      {/* ── LEFT PANEL ── */}
+      <div className="hidden lg:flex lg:w-[48%] bg-[#F5F4FF] border-r border-card-border flex-col px-10 py-8 relative overflow-hidden">
+        {/* Subtle glow */}
+        <div className="glow-orb glow-orb-purple w-[400px] h-[400px] -top-10 -left-10 opacity-20 pointer-events-none" />
 
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full
-        bg-gradient-to-br from-indigo-600/40 to-emerald-400/40 blur-3xl opacity-40 dark:opacity-20" />
-      </div>
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 relative z-10 group w-fit">
+          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-primary-foreground shadow-glow-sm group-hover:shadow-glow-md transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span className="font-bold text-lg tracking-tight text-foreground">Draw App</span>
+        </Link>
 
-      <motion.div
-        initial={{ opacity: 0, y: 22 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="w-full max-w-md relative z-10"
-      >
-        {/* Logo + Title */}
-        <div className="flex flex-col items-center mb-10">
-          <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="flex items-center justify-center w-16 h-16 rounded-2xl 
-            bg-gradient-to-br from-indigo-600 to-violet-600 shadow-xl shadow-indigo-500/30"
-          >
-            <User className="w-8 h-8 text-white" />
+        {/* Content block */}
+        <div className="flex-grow flex flex-col justify-center relative z-10 gap-5">
+          {/* Tagline */}
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+            <h1 className="text-3xl xl:text-4xl font-extrabold text-foreground leading-tight mb-2">
+              Collaborate
+              Create
+              <span className="gradient-text"> Bring ideas</span> to life.
+            </h1>
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xl">
+              Real-time collaborative whiteboard for teams to brainstorm, sketch, and build together, anywhere, anytime.
+            </p>
           </motion.div>
 
-          <h1 className="mt-6 text-3xl font-bold text-slate-900 dark:text-slate-100">
-            {isSignin ? "Welcome Back" : "Create Your Account"}
-          </h1>
+          {/* Feature list */}
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="space-y-3">
+            {features.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-white shadow-sm border border-card-border flex items-center justify-center">
+                  <Icon size={16} className="text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm text-foreground">{title}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </motion.div>
 
-          {isSignin ? (
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Don’t have an account?{" "}
-              <a href="/signup" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
-                Create one
-              </a>
-            </p>
-          ) : (
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Already have an account?{" "}
-              <a href="/signin" className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
-                Sign in
-              </a>
-            </p>
-          )}
+          {/* Mini whiteboard mockup */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="rounded-xl bg-white shadow-card border border-card-border overflow-hidden"
+          >
+            {/* Toolbar row */}
+            <div className="flex items-center justify-between px-3 py-1.5 bg-gray-50 border-b border-gray-100">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 rounded-full bg-red-400" />
+                <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                <div className="w-2 h-2 rounded-full bg-green-400" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="flex -space-x-1">
+                  {['A','J','P'].map((l,i)=>(
+                    <div key={i} className={`w-5 h-5 rounded-full border border-white flex items-center justify-center text-[7px] font-bold ${['bg-purple-200 text-purple-700','bg-teal-200 text-teal-700','bg-blue-200 text-blue-700'][i]}`}>{l}</div>
+                  ))}
+                </div>
+                <span className="text-[8px] bg-primary text-white px-1.5 py-0.5 rounded font-bold">Share</span>
+                <span className="text-gray-400 text-[10px]">›</span>
+              </div>
+            </div>
+
+            {/* Canvas */}
+            <div className="flex">
+              {/* Left toolbar */}
+              <div className="flex flex-col gap-0.5 p-1 border-r border-gray-100 bg-white">
+                {[0,1,2,3,4,5,6].map((i) => (
+                  <div key={i} className={`w-5 h-5 rounded flex items-center justify-center ${i===0?'bg-primary/10':''}`}>
+                    <div className={`w-2 h-2 rounded-sm ${i===0?'bg-primary/40':'bg-gray-300'}`} />
+                  </div>
+                ))}
+              </div>
+
+              {/* Drawing area */}
+              <div className="flex-grow h-[130px] bg-white">
+                <svg className="w-full h-full" viewBox="0 0 260 130" fill="none">
+                  <rect x="10" y="8" width="72" height="46" rx="8" fill="#E8E5FF" stroke="#C4B5FD" strokeWidth="1.5"/>
+                  <path d="M42 22 Q42 15 46 15 Q50 15 50 22 Q50 27 46 29 Q46 33 46 36" stroke="#6C5CE7" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+                  <circle cx="46" cy="38" r="1.5" fill="#6C5CE7"/>
+                  <text x="46" y="50" textAnchor="middle" fontSize="7" fill="#6C5CE7" fontWeight="bold">Brainstorm</text>
+
+                  <circle cx="113" cy="32" r="24" stroke="#9CA3AF" strokeWidth="1.5" fill="none" strokeDasharray="4,3"/>
+
+                  <rect x="152" y="6" width="72" height="46" rx="8" fill="#FFEAA7" stroke="#FDCB6E" strokeWidth="1.5"/>
+                  <text x="188" y="22" textAnchor="middle" fontSize="7" fill="#B7950B" fontWeight="bold">User Flow</text>
+                  <rect x="163" y="27" width="13" height="11" rx="2" fill="none" stroke="#B7950B" strokeWidth="1"/>
+                  <rect x="181" y="27" width="13" height="11" rx="2" fill="none" stroke="#B7950B" strokeWidth="1"/>
+                  <path d="M176 33 L181 33" stroke="#B7950B" strokeWidth="1" markerEnd="url(#aAP2)"/>
+
+                  <rect x="10" y="72" width="65" height="42" rx="6" fill="none" stroke="#9CA3AF" strokeWidth="1.5"/>
+
+                  <rect x="96" y="70" width="72" height="50" rx="8" fill="#FFD6EC" stroke="#E84393" strokeWidth="1.5"/>
+                  <text x="132" y="90" textAnchor="middle" fontSize="7.5" fill="#E84393" fontWeight="bold">Launch!</text>
+                  <path d="M132 95 L132 105" stroke="#E84393" strokeWidth="1" fill="none"/>
+
+                  <rect x="178" y="65" width="72" height="50" rx="8" fill="#D5F5E3" stroke="#00B894" strokeWidth="1.5"/>
+                  <text x="214" y="86" textAnchor="middle" fontSize="7.5" fill="#00B894" fontWeight="bold">Sketch Ideas</text>
+                  <path d="M184 102 Q200 94 230 102" stroke="#00B894" strokeWidth="1.5" fill="none"/>
+
+                  <defs>
+                    <marker id="aAP2" markerWidth="5" markerHeight="4" refX="4" refY="2" orient="auto">
+                      <polygon points="0 0, 5 2, 0 4" fill="#B7950B"/>
+                    </marker>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+
+            {/* Bottom toolbar */}
+            <div className="flex items-center justify-between px-3 py-1.5 border-t border-gray-100 bg-white">
+              <div className="flex gap-1.5">
+                {['✏️','🖊️','⭕','↩️','↪️'].map((e,i)=>(
+                  <span key={i} className="text-[10px] cursor-pointer">{e}</span>
+                ))}
+              </div>
+              <div className="flex gap-1">
+                {['#1A1A2E','#6C5CE7','#0984E3'].map((c,i)=>(
+                  <div key={i} className="w-3.5 h-3.5 rounded-full border border-gray-200" style={{backgroundColor: c}}/>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
+      </div>
 
-        {/* Card */}
-        <div className="bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border 
-        border-white/40 dark:border-slate-800 shadow-2xl shadow-black/10 
-        dark:shadow-none rounded-2xl px-8 py-10">
+      {/* ── RIGHT PANEL ── */}
+      <div className="w-full lg:w-[52%] flex items-center justify-center px-6 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="w-full max-w-[420px]"
+        >
+          {/* Tab switcher */}
+          <div className="flex border-b border-card-border mb-6">
+            <Link
+              href="/signin"
+              className={`pb-2.5 px-5 text-sm font-semibold border-b-2 transition-colors ${
+                isSignin ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Log in
+            </Link>
+            <Link
+              href="/signup"
+              className={`pb-2.5 px-5 text-sm font-semibold border-b-2 transition-colors ${
+                !isSignin ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Sign up
+            </Link>
+          </div>
 
-          <form onSubmit={handle} className="space-y-6">
+          {/* Heading */}
+          <div className="mb-5">
+            <h2 className="text-xl font-extrabold text-foreground">
+              {isSignin ? 'Welcome back 👋' : 'Create your account 🚀'}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isSignin
+                ? 'Log in to access your boards and collaborate with your team.'
+                : 'Sign up to start drawing and collaborating in real time.'}
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handle} className="space-y-4">
             {/* Email */}
-            <InputField
-              id="email"
-              label="Email address"
-              type="email"
-              icon={<Mail className="h-5 w-5 text-slate-400" />}
-              placeholder="you@example.com"
-            />
+            <div className="space-y-1">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground">Email address</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <Mail size={15} className="text-muted-foreground" />
+                </span>
+                <input
+                  type="email" id="email" name="email" placeholder="you@exemple.com" required
+                  className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl outline-none bg-white border border-card-border text-foreground placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
+                />
+              </div>
+            </div>
 
             {/* Password */}
-            <InputField
-              id="password"
-              label="Password"
-              type="password"
-              icon={<Lock className="h-5 w-5 text-slate-400" />}
-              placeholder="••••••••"
-            />
+            <div className="space-y-1">
+              <label htmlFor="password" className="block text-sm font-medium text-foreground">Password</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <Lock size={15} className="text-muted-foreground" />
+                </span>
+                <input
+                  type={showPassword ? 'text' : 'password'} id="password" name="password"
+                  placeholder="Enter your password" required
+                  className="w-full pl-9 pr-10 py-2.5 text-sm rounded-xl outline-none bg-white border border-card-border text-foreground placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Toggle password visibility">
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+            </div>
 
-            {/* Additional fields only for SignUp */}
+            {/* Signup extra fields */}
             {!isSignin && (
-              <>
-                <InputField
-                  id="firstName"
-                  label="First Name"
-                  type="text"
-                  icon={<UserCircle2 className="h-5 w-5 text-slate-400" />}
-                  placeholder="Nitin"
-                />
-
-                <InputField
-                  id="lastName"
-                  label="Last Name"
-                  type="text"
-                  icon={<UserCircle2 className="h-5 w-5 text-slate-400" />}
-                  placeholder="Gupta"
-                />
-              </>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label htmlFor="firstName" className="block text-sm font-medium text-foreground">First Name</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <User size={15} className="text-muted-foreground" />
+                    </span>
+                    <input type="text" id="firstName" name="firstName" placeholder="First name" required
+                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl outline-none bg-white border border-card-border text-foreground placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor="lastName" className="block text-sm font-medium text-foreground">Last Name</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <User size={15} className="text-muted-foreground" />
+                    </span>
+                    <input type="text" id="lastName" name="lastName" placeholder="Last name" required
+                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl outline-none bg-white border border-card-border text-foreground placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm" />
+                  </div>
+                </div>
+              </div>
             )}
 
-            {/* Submit Button */}
-            <motion.button
-              type="submit"
-              whileTap={{ scale: 0.97 }}
-              className="w-full flex justify-center items-center gap-2 px-4 py-3 rounded-xl
-              bg-gradient-to-br from-indigo-600 to-violet-600 text-white 
-              font-medium shadow-lg shadow-indigo-500/20 hover:brightness-105 
-              transition-all"
+            {/* Remember me / Forgot password */}
+            {isSignin && (
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" className="w-3.5 h-3.5 rounded border-card-border accent-primary" />
+                  <span className="text-sm text-muted-foreground">Remember me</span>
+                </label>
+                <button type="button" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors">
+                  Forgot password?
+                </button>
+              </div>
+            )}
+
+            {/* Submit */}
+            <button type="submit" disabled={loading}
+              className="w-full flex justify-center items-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm shadow-glow-sm hover:shadow-glow-md hover:bg-primary-dark transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? (
-                <motion.div
-                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
-                />
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                <>
-                  {isSignin ? "Sign In" : "Create Account"}
-                  <ArrowRight className="h-4 w-4" />
-                </>
+                <>{isSignin ? 'Log in' : 'Create Account'} <ArrowRight size={15} /></>
               )}
-
-            </motion.button>
+            </button>
           </form>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
 
-/* ------------------------------------------ */
-/*           Premium Input Component           */
-/* ------------------------------------------ */
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-4">
+            <div className="flex-grow h-px bg-card-border" />
+            <span className="text-xs text-muted-foreground font-medium">or continue with</span>
+            <div className="flex-grow h-px bg-card-border" />
+          </div>
 
-function InputField({
-  id,
-  label,
-  type,
-  placeholder,
-  icon,
-}: {
-  id: string;
-  label: string;
-  type: string;
-  placeholder: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-slate-700 dark:text-slate-200"
-      >
-        {label}
-      </label>
+          {/* Social buttons */}
+          <div className="grid grid-cols-2 gap-2.5 mb-2.5">
+            <button type="button"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-card-border bg-white hover:bg-gray-50 transition-all text-sm font-medium text-foreground shadow-sm">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Google
+            </button>
+            <button type="button"
+              className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-card-border bg-white hover:bg-gray-50 transition-all text-sm font-medium text-foreground shadow-sm">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+              </svg>
+              GitHub
+            </button>
+          </div>
+          <button type="button"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-card-border bg-white hover:bg-gray-50 transition-all text-sm font-medium text-foreground shadow-sm">
+            <svg width="16" height="16" viewBox="0 0 23 23">
+              <rect x="1" y="1" width="10" height="10" fill="#F25022"/>
+              <rect x="12" y="1" width="10" height="10" fill="#7FBA00"/>
+              <rect x="1" y="12" width="10" height="10" fill="#00A4EF"/>
+              <rect x="12" y="12" width="10" height="10" fill="#FFB900"/>
+            </svg>
+            Microsoft
+          </button>
 
-      <div className="relative">
-        <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-          {icon}
-        </span>
-
-        <input
-          type={type}
-          id={id}
-          name={id}
-          placeholder={placeholder}
-          required
-          className="w-full pl-10 pr-3 py-2.5 text-[15px] rounded-xl outline-none
-          bg-white/70 dark:bg-slate-800/60 border border-slate-300/70 dark:border-slate-700
-          text-slate-900 dark:text-slate-100
-          focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm
-          dark:focus:ring-indigo-400 transition-all"
-        />
+          {/* Bottom link */}
+          <p className="text-center text-sm text-muted-foreground mt-5">
+            {isSignin ? (
+              <>Don&apos;t have an account?{' '}
+                <Link href="/signup" className="text-primary font-semibold hover:text-primary-dark transition-colors">Sign up</Link>
+              </>
+            ) : (
+              <>Already have an account?{' '}
+                <Link href="/signin" className="text-primary font-semibold hover:text-primary-dark transition-colors">Log in</Link>
+              </>
+            )}
+          </p>
+        </motion.div>
       </div>
     </div>
   );

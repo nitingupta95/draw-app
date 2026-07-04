@@ -23,6 +23,8 @@ model Room {
   id        String   @id @default(uuid())  // UUID room ID
   slug      String   @unique
   name      String
+  passcode  String   @default("")
+
   createdAt DateTime @default(now())
 
   adminId   String
@@ -49,6 +51,7 @@ model Collaborator {
   room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  canEdit   Boolean  @default(true)
 
   @@unique([roomId, userId])  
 }

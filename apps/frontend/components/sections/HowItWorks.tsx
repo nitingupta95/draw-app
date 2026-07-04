@@ -40,7 +40,7 @@ const collabFeatures = [
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-24 bg-background relative overflow-hidden">
+    <section id="how-it-works" className="py-16 bg-background relative overflow-hidden">
       {/* Subtle pattern */}
       <div className="pattern-overlay absolute inset-0" />
 
@@ -51,7 +51,7 @@ export function HowItWorks() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-16"
+          className="text-center mb-10"
         >
           <span className="inline-block text-sm font-semibold text-primary mb-3 tracking-wide">Simple & Fast</span>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">
@@ -63,7 +63,7 @@ export function HowItWorks() {
         </motion.div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-14">
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (

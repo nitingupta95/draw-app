@@ -58,8 +58,16 @@ wss.on("connection", async function connection(ws: WebSocket, request) {
     /* ---------------------------------------------------------------------- */
 
     ws.on("message", async (data: RawData) => {
+        let parsed;
         try {
-            const parsed = JSON.parse(data.toString());
+            parsed = JSON.parse(data.toString());
+        } catch (err) {
+            console.error("❌ WebSocket JSON Parsing Error:", err);
+            ws.send(JSON.stringify({ type: "error", message: "Invalid JSON format" }));
+            return;
+        }
+
+        try {
             const roomId: string = String(parsed.roomId); // ALWAYS STRING
 
             /* ------------------------------ JOIN ROOM ----------------------------- */
@@ -130,10 +138,10 @@ wss.on("connection", async function connection(ws: WebSocket, request) {
 
                 const isAdmin = dbRoom.adminId === userId;
 
-                if (!isAdmin && !isCollaborator) {
+                if (!isAdmin && (!isCollaborator || !isCollaborator.canEdit)) {
                     ws.send(JSON.stringify({
                         type: "error",
-                        message: "You are not allowed to edit this room"
+                        message: "You do not have permission to edit this room"
                     }));
                     return;
                 }
@@ -165,8 +173,8 @@ wss.on("connection", async function connection(ws: WebSocket, request) {
             }
 
         } catch (err) {
-            console.error("❌ WebSocket Error:", err);
-            ws.send(JSON.stringify({ type: "error", message: "Invalid WebSocket request" }));
+            console.error(`❌ WebSocket Error for user ${userId}:`, err);
+            ws.send(JSON.stringify({ type: "error", message: "Internal server error" }));
         }
     });
 

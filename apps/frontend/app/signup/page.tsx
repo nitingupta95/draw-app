@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { HTTP_BACKEND } from "@/config";
 import { AuthPage } from "../components/AuthPage";
 import { useState } from "react";
@@ -25,8 +26,11 @@ export default function Signup() {
 
     try {
       await axios.post(`${HTTP_BACKEND}/signup`, userData);
+      toast.success("Signup successful! Please sign in.");
       router.push("/signin");
     } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Signup failed";
+      toast.error(errorMessage);
       console.error("Signup Error:", error.response?.data || error.message);
     }
     finally {

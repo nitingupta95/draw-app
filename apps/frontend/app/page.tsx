@@ -2,29 +2,25 @@ import React from 'react';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { Hero } from '../components/sections/Hero';
+import { HowItWorks } from '../components/sections/HowItWorks';
 import { FeatureGrid } from '../components/sections/FeatureGrid';
-import { ArchitectureDiagram } from '../components/sections/ArchitectureDiagram';
-import { ProjectStructure } from '../components/sections/ProjectStructure';
-import { TechStack } from '../components/sections/TechStack';
-import { GettingStarted } from '../components/sections/GettingStarted';
+import { Testimonials } from '../components/sections/Testimonials';
 import { CTASection } from '../components/sections/CTASection';
 
 export const metadata = {
-  title: 'Draw App - Collaborative Whiteboard',
-  description: 'Sketch, brainstorm, and design together — instantly.',
+  title: 'DrawApp - Real-Time Collaborative Whiteboard',
+  description: 'DrawApp is a real-time collaborative whiteboard for teams to sketch, brainstorm, and bring ideas to life — together, instantly.',
 };
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
       <main className="flex-grow">
         <Hero />
+        <HowItWorks />
         <FeatureGrid />
-        <ArchitectureDiagram />
-        <ProjectStructure />
-        <TechStack />
-        <GettingStarted />
+        <Testimonials />
         <CTASection />
       </main>
       <Footer />

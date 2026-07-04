@@ -2,6 +2,7 @@
 import { AuthPage } from "../components/AuthPage";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { HTTP_BACKEND } from "@/config";
 import { useState } from "react";
 
@@ -34,12 +35,16 @@ export default function Signin() {
 
         console.log("Token saved:", token);
 
+        toast.success("Signed in successfully!");
         router.push("/room");
       } else {
+        toast.error("Signin failed: No token received");
         console.warn("No token or user data received!");
       }
     } catch (error: any) {
-      console.error("Signup Error:", error.response?.data || error.message);
+      const errorMessage = error.response?.data?.message || "Signin failed";
+      toast.error(errorMessage);
+      console.error("Signin Error:", error.response?.data || error.message);
     }
     finally {
     setLoading(false); 

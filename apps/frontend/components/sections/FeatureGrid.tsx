@@ -57,7 +57,7 @@ const features = [
 
 export function FeatureGrid() {
   return (
-    <section id="features" className="py-24 bg-muted/50 relative overflow-hidden">
+    <section id="features" className="py-16 bg-muted/50 relative overflow-hidden">
       {/* Background glow */}
       <div className="glow-orb glow-orb-purple w-[500px] h-[500px] top-0 left-1/2 -translate-x-1/2 opacity-20" />
 
@@ -68,7 +68,7 @@ export function FeatureGrid() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-16"
+          className="text-center mb-10"
         >
           <span className="inline-block text-sm font-semibold text-primary mb-3 tracking-wide">Everything you need</span>
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">

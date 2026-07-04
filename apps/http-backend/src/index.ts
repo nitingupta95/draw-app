@@ -28,19 +28,22 @@ app.post("/signup", async (req: Request, res: Response) => {
   }
   const { username, password, firstName, lastName } = parseResult.data;
 
-  const existingUser = await prismaClient.user.findUnique({
-    where: { email: username },
-  });
-  if (existingUser) return res.status(400).json({ message: "User already exists" });
-
-  const hashedPassword = await bcrypt.hash(password, 10);
   try {
+    const existingUser = await prismaClient.user.findUnique({
+      where: { email: username },
+    });
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prismaClient.user.create({
       data: { email: username, password: hashedPassword, name: `${firstName} ${lastName}`, photo: "" },
     });
     res.status(201).json({ message: "User signed up successfully", userId: user.id });
   } catch (error: any) {
     console.error("Error creating user:", error);
+    if (error.code === "P2002") {
+      return res.status(400).json({ message: "User with this email already exists" });
+    }
     res.status(500).json({
       message: "An error occurred while creating the user",
       error: error.message || "Unknown error",
@@ -59,22 +62,27 @@ app.post("/signin", async (req: Request, res: Response) => {
   }
   const { username, password } = parseResult.data;
 
-  const user = await prismaClient.user.findUnique({ where: { email: username }, include: { rooms: true } });
-  if (!user) return res.status(404).json({ message: "User not found" });
+  try {
+    const user = await prismaClient.user.findUnique({ where: { email: username }, include: { rooms: true } });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) return res.status(401).json({ message: "Invalid credentials" });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) return res.status(401).json({ message: "Invalid credentials" });
 
-  const token = Jwt.sign({ userId: user.id }, JWT_SECRET);
+    const token = Jwt.sign({ userId: user.id }, JWT_SECRET);
 
-  res.cookie("token", token, {
-    httpOnly: false,
-    secure: false,
-    sameSite: "lax",
-    path: "/"
-  });
+    res.cookie("token", token, {
+      httpOnly: false,
+      secure: false,
+      sameSite: "lax",
+      path: "/"
+    });
 
-  res.json({ user, token });
+    res.json({ user, token });
+  } catch (error: any) {
+    console.error("Error signing in user:", error);
+    res.status(500).json({ message: "Internal server error during signin", error: error.message });
+  }
 }
 );
 
@@ -102,6 +110,9 @@ app.post("/room", middleware, async (req: Request, res: Response) => {
       existingRoom = await prismaClient.room.findUnique({ where: { slug } });
     }
 
+    // Generate unique 6 character passcode
+    const passcode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
     // Create the new room
     const room = await prismaClient.room.create({
       data: {
@@ -109,6 +120,7 @@ app.post("/room", middleware, async (req: Request, res: Response) => {
         name: parseResult.data.name,
         slug,
         adminId,
+        passcode,
       },
     });
 
@@ -139,7 +151,24 @@ app.get("/me", middleware, async (req: Request, res: Response) => {
 
     const user = await prismaClient.user.findUnique({
       where: { id: req.userId },
-      include: { rooms: true }, // Ensure rooms are included
+      include: { 
+        rooms: {
+          include: {
+            admin: true,
+            collaborators: { include: { user: true } }
+          }
+        },
+        collaborators: {
+          include: {
+            room: {
+              include: {
+                admin: true,
+                collaborators: { include: { user: true } }
+              }
+            }
+          }
+        }
+      },
     });
 
     if (!user) {
@@ -147,7 +176,14 @@ app.get("/me", middleware, async (req: Request, res: Response) => {
     }
 
     const { password, ...userWithoutPassword } = user;
-    res.json({ user: userWithoutPassword, rooms: user.rooms }); // Include rooms in response
+    
+    const allRooms = [
+      ...user.rooms,
+      ...user.collaborators.map(c => c.room)
+    ];
+    const uniqueRooms = Array.from(new Map(allRooms.map(r => [r.id, r])).values());
+
+    res.json({ user: userWithoutPassword, rooms: uniqueRooms });
   } catch (error: any) {
     console.error("Error fetching user details:", error);
     res.status(500).json({ message: "Internal server error", error: error.message });
@@ -159,12 +195,17 @@ app.get("/me", middleware, async (req: Request, res: Response) => {
 app.get("/chats/:roomId", async (req, res) => {
   const roomId = req.params.roomId;
 
-  const messages = await prismaClient.chat.findMany({
-    where: { roomId },
-    orderBy: { id: "desc" },
-  });
+  try {
+    const messages = await prismaClient.chat.findMany({
+      where: { roomId },
+      orderBy: { id: "desc" },
+    });
 
-  res.json({ messages });
+    res.json({ messages });
+  } catch (error: any) {
+    console.error("Error fetching chats:", error);
+    res.status(500).json({ message: "Internal server error while fetching chats" });
+  }
 });
 
 
@@ -196,19 +237,92 @@ app.get("/rooms/:slug", async (req: Request, res: Response) => {
 });
 
 
+app.get("/rooms/:roomId/details", middleware, async (req: Request, res: Response): Promise<void> => {
+  const roomId = req.params.roomId;
+  try {
+    const room = await prismaClient.room.findUnique({
+      where: { id: roomId },
+      include: {
+        admin: true,
+        collaborators: {
+          include: {
+            user: true,
+          }
+        }
+      }
+    });
+
+    if (!room) {
+      res.status(404).json({ message: "Room not found" });
+      return;
+    }
+
+    res.json({ room });
+  } catch (error) {
+    console.error("Error fetching room details:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 app.post("/find-user", async (req: Request, res: Response): Promise<void> => {
   const { email } = req.body;
 
-  const user = await prismaClient.user.findUnique({ where: { email } });
+  try {
+    const user = await prismaClient.user.findUnique({ where: { email } });
 
-  if (!user) {
-    res.json({});
+    if (!user) {
+      res.json({});
+      return;
+    }
+
+    res.json({ id: user.id, email: user.email, name: user.name });
+  } catch (error: any) {
+    console.error("Error finding user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.post("/rooms/:roomId/join", middleware, async (req: Request, res: Response): Promise<void> => {
+  const roomId = req.params.roomId as string;
+  const { passcode } = req.body;
+  const userId = req.userId as string;
+
+  if (!userId) {
+    res.status(403).json({ message: "Unauthorized" });
     return;
   }
 
-  res.json({ id: user.id, email: user.email, name: user.name });
-});
+  if (typeof passcode !== "string") {
+    res.status(400).json({ message: "Passcode is required" });
+    return;
+  }
 
+  try {
+    const room = await prismaClient.room.findUnique({ where: { id: roomId } });
+    if (!room) {
+      res.status(404).json({ message: "Room not found" });
+      return;
+    }
+
+    if (room.passcode !== passcode) {
+      res.status(403).json({ message: "Invalid passcode" });
+      return;
+    }
+
+    // Add user as collaborator with default view-only permission (or edit if you prefer. We'll set canEdit: false for link joiners to be safe, but since this is for general join, we'll default to false)
+    await prismaClient.collaborator.upsert({
+      where: { roomId_userId: { roomId: roomId, userId: userId } },
+      create: { roomId: roomId, userId: userId, canEdit: false },
+      update: {},
+    });
+
+    res.json({ message: "Successfully joined room" });
+  } catch (error: any) {
+    console.error("Error joining room:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 app.post("/rooms/:roomId/collaborators", middleware, async (req: Request, res: Response): Promise<void> => {
   const roomId = req.params.roomId;
@@ -218,32 +332,38 @@ app.post("/rooms/:roomId/collaborators", middleware, async (req: Request, res: R
     return;
   }
 
-  const { userId } = req.body;
+  const { userId, canEdit } = req.body;
 
   if (!req.userId) {
     res.status(403).json({ message: "Unauthorized" });
     return;
   }
 
-  const room = await prismaClient.room.findUnique({ where: { id: roomId } });
-  if (!room) {
-    res.status(404).json({ message: "Room not found" });
+  try {
+    const room = await prismaClient.room.findUnique({ where: { id: roomId } });
+    if (!room) {
+      res.status(404).json({ message: "Room not found" });
+      return;
+    }
+
+    if (room.adminId !== req.userId) {
+      res.status(403).json({ message: "Only admin can add collaborators" });
+      return;
+    }
+
+    await prismaClient.collaborator.upsert({
+      where: { roomId_userId: { roomId, userId } },
+      create: { roomId, userId, canEdit: canEdit ?? true },
+      update: { canEdit: canEdit ?? true },
+    });
+
+    res.json({ message: "Collaborator added successfully" });
+    return;
+  } catch (error: any) {
+    console.error("Error adding collaborator:", error);
+    res.status(500).json({ message: "Internal server error" });
     return;
   }
-
-  if (room.adminId !== req.userId) {
-    res.status(403).json({ message: "Only admin can add collaborators" });
-    return;
-  }
-
-  await prismaClient.collaborator.upsert({
-    where: { roomId_userId: { roomId, userId } },
-    create: { roomId, userId },
-    update: {},
-  });
-
-  res.json({ message: "Collaborator added successfully" });
-  return;
 });
 
 app.get(
@@ -252,37 +372,42 @@ app.get(
   async (req: Request, res: Response): Promise<void> => {
     const value = req.params.value;
 
-    // Try by id
-    let room = await prismaClient.room.findUnique({ where: { id: value } });
+    try {
+      // Try by id
+      let room = await prismaClient.room.findUnique({ where: { id: value } });
 
-    // Try by slug
-    if (!room) {
-      room = await prismaClient.room.findUnique({ where: { slug: value } });
+      // Try by slug
+      if (!room) {
+        room = await prismaClient.room.findUnique({ where: { slug: value } });
+      }
+
+      if (!room) {
+        res.status(404).json({ message: "Room not found" });
+        return;
+      }
+
+      // Admin always allowed
+      if (room.adminId === req.userId) {
+        res.json({ ok: true, role: "admin" });
+        return;
+      }
+
+      // Check collaborator
+      const collaborator = await prismaClient.collaborator.findFirst({
+        where: { roomId: room.id, userId: req.userId },
+      });
+
+      if (collaborator) {
+        res.json({ ok: true, role: "collaborator", canEdit: collaborator.canEdit });
+        return;
+      }
+
+      // Block everyone else
+      res.status(403).json({ message: "Forbidden" });
+    } catch (error: any) {
+      console.error("Error checking room access:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-
-    if (!room) {
-      res.status(404).json({ message: "Room not found" });
-      return;
-    }
-
-    // Admin always allowed
-    if (room.adminId === req.userId) {
-      res.json({ ok: true, role: "admin" });
-      return;
-    }
-
-    // Check collaborator
-    const collaborator = await prismaClient.collaborator.findFirst({
-      where: { roomId: room.id, userId: req.userId },
-    });
-
-    if (collaborator) {
-      res.json({ ok: true, role: "collaborator" });
-      return;
-    }
-
-    // Block everyone else
-    res.status(403).json({ message: "Forbidden" });
   }
 );
 

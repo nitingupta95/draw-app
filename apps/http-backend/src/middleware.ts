@@ -35,7 +35,14 @@ export function middleware(req: Request, res: Response, next: NextFunction): voi
 
     req.userId = decoded.userId;
     next(); // middleware MUST call next()
-  } catch (err) {
+  } catch (err: any) {
+    if (err.name === "TokenExpiredError") {
+      res.status(401).json({ message: "Token has expired" });
+      return;
+    } else if (err.name === "JsonWebTokenError") {
+      res.status(401).json({ message: "Invalid token signature" });
+      return;
+    }
     res.status(403).json({ message: "Error during token verification" });
   }
 }
