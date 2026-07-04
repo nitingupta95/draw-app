@@ -1,16 +1,13 @@
 FROM node:20
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml turbo.json ./
-COPY pnpm-workspace.yaml ./
+COPY package.json package-lock.json turbo.json ./
 
 COPY apps ./apps
 COPY packages ./packages
 
-RUN npm install -g pnpm
-
-RUN pnpm install
-RUN pnpm run build --filter=exceldraw-frontend...
+RUN npm install
+RUN npx turbo run build --filter=exceldraw-frontend...
 
 EXPOSE 8000
-CMD ["pnpm", "--filter", "exceldraw-frontend", "start"]
+CMD ["npm", "run", "start", "-w", "exceldraw-frontend"]

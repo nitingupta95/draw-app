@@ -19,7 +19,7 @@
   },
 
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
+    "@repo/typescript-config": "*",
     "typescript": "^5.5.4"
   }
 }

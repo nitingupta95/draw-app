@@ -19,11 +19,11 @@
     "websocket": "^1.0.35",
     "websocket-ts": "^2.1.5",
     "ws": "^8.18.0",
-    "@repo/db":"workspace:*"
+    "@repo/db":"*"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
-    "@repo/backend-common":"workspace:*"
+    "@repo/typescript-config": "*",
+    "@repo/backend-common":"*"
   },
   "keywords": [],
   "author": "",

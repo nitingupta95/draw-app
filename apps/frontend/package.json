@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@prisma/client": "6.5.0",
-    "@repo/backend-common": "workspace:*",
-    "@repo/common": "workspace:*",
-    "@repo/db": "workspace:*",
+    "@repo/backend-common": "*",
+    "@repo/common": "*",
+    "@repo/db": "*",
     "axios": "^1.7.9",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.23.24",

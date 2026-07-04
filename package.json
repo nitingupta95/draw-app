@@ -4,17 +4,17 @@
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
-    "build:all": "pnpm build:http && pnpm build:ws && pnpm build:frontend",
-    "dev:http": "pnpm --filter http-backend dev",
-    "dev:ws": "pnpm --filter ws-backend dev",
-    "dev:frontend": "pnpm --filter exceldraw-frontend dev",
-    "build:http": "pnpm --filter http-backend build",
-    "build:ws": "pnpm --filter ws-backend build",
-    "build:frontend": "pnpm --filter exceldraw-frontend build",
-    "start:http": "pnpm --filter http-backend start",
-    "start:ws": "pnpm --filter ws-backend start",
-    "start:frontend": "pnpm --filter exceldraw-frontend start",
-    "start": "pnpm build && concurrently \"pnpm start:http\" \"pnpm start:ws\" \"pnpm start:frontend\""
+    "build:all": "npm run build -w http-backend && npm run build -w ws-backend && npm run build -w exceldraw-frontend",
+    "dev:http": "npm run dev -w http-backend",
+    "dev:ws": "npm run dev -w ws-backend",
+    "dev:frontend": "npm run dev -w exceldraw-frontend",
+    "build:http": "npm run build -w http-backend",
+    "build:ws": "npm run build -w ws-backend",
+    "build:frontend": "npm run build -w exceldraw-frontend",
+    "start:http": "npm run start -w http-backend",
+    "start:ws": "npm run start -w ws-backend",
+    "start:frontend": "npm run start -w exceldraw-frontend",
+    "start": "npm run build && concurrently \"npm run start:http\" \"npm run start:ws\" \"npm run start:frontend\""
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
@@ -22,7 +22,11 @@
     "turbo": "^2.4.4",
     "typescript": "5.5.4"
   },
-  "packageManager": "pnpm@9.15.4",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "packageManager": "npm@11.6.2",
   "engines": {
     "node": ">=18"
   }

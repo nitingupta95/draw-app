@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm turbo run build --filter=exceldraw-frontend",
-  "installCommand": "pnpm install",
+  "buildCommand": "npx turbo run build --filter=exceldraw-frontend",
+  "installCommand": "npm install",
   "framework": "nextjs"
 }
