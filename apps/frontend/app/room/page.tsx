@@ -164,7 +164,7 @@ export default function Dashboard() {
 
         {/* HERO GREETING */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">
+          <h1 className="font-display italic text-3xl md:text-4xl font-bold text-gray-900 mb-2">
             Welcome back, {user?.name?.split(' ')[0] || "User"} 👋
           </h1>
           <p className="text-gray-500">Create a new room or continue collaborating on your whiteboards.</p>
@@ -193,7 +193,7 @@ export default function Dashboard() {
               <Plus size={24} strokeWidth={2.5} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Create a New Room</h2>
+              <h2 className="font-display italic text-xl font-bold text-gray-900">Create a New Room</h2>
               <p className="text-sm text-gray-500">Start a new collaborative whiteboard.</p>
             </div>
           </div>

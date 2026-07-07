@@ -22,6 +22,10 @@
     animation: gradientShift 4s ease infinite;
   }
 
+  .text-glow {
+    text-shadow: 0 0 40px rgba(108, 92, 231, 0.3), 0 0 80px rgba(108, 92, 231, 0.15);
+  }
+
   .glass-card {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(20px);

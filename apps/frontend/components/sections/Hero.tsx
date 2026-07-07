@@ -28,7 +28,7 @@ export function Hero() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 text-foreground leading-[1.1]">
+          <h1 className="font-display italic text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-foreground leading-[1.1]">
             Draw, Collaborate,{' '}
             <br className="hidden md:block" />
             Create{' '}

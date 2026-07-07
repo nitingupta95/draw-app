@@ -71,7 +71,7 @@ export function FeatureGrid() {
           className="text-center mb-10"
         >
           <span className="inline-block text-sm font-semibold text-primary mb-3 tracking-wide">Everything you need</span>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">
+          <h2 className="font-display italic text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
             Powerful features for modern teams
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

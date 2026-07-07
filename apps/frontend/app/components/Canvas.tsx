@@ -31,12 +31,33 @@ import { HTTP_BACKEND } from "@/config";
 import toast from "react-hot-toast";
 import Link from "next/link";
 
-const mockCollaborators = [
-  { id: 1, name: "Nitin Gupta", email: "ng61315@gmail.com", role: "Owner", isYou: true, avatar: "https://i.pravatar.cc/150?u=a" },
-  { id: 2, name: "Priya Sharma", email: "priya.sharma@gmail.com", role: "Can edit", isYou: false, avatar: "https://i.pravatar.cc/150?u=b" },
-  { id: 3, name: "Arjun Mehta", email: "arjun.mehta@gmail.com", role: "Can edit", isYou: false, avatar: "https://i.pravatar.cc/150?u=c" },
-  { id: 4, name: "Riya Patel", email: "riya.patel@gmail.com", role: "Can view", isYou: false, avatar: "https://i.pravatar.cc/150?u=d" },
+const AVATAR_COLORS = [
+  { bg: "bg-rose-500", ring: "ring-rose-300" },
+  { bg: "bg-amber-500", ring: "ring-amber-300" },
+  { bg: "bg-emerald-500", ring: "ring-emerald-300" },
+  { bg: "bg-cyan-500", ring: "ring-cyan-300" },
+  { bg: "bg-blue-500", ring: "ring-blue-300" },
+  { bg: "bg-violet-500", ring: "ring-violet-300" },
+  { bg: "bg-fuchsia-500", ring: "ring-fuchsia-300" },
+  { bg: "bg-orange-500", ring: "ring-orange-300" },
+  { bg: "bg-teal-500", ring: "ring-teal-300" },
+  { bg: "bg-pink-500", ring: "ring-pink-300" },
+  { bg: "bg-indigo-500", ring: "ring-indigo-300" },
+  { bg: "bg-lime-600", ring: "ring-lime-300" },
+  { bg: "bg-sky-500", ring: "ring-sky-300" },
+  { bg: "bg-red-500", ring: "ring-red-300" },
+  { bg: "bg-purple-500", ring: "ring-purple-300" },
 ];
+
+const SELF_COLOR = { bg: "bg-emerald-600", ring: "ring-emerald-300" };
+
+function getAvatarColor(id: string) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
 
 export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -241,17 +262,21 @@ function Topbar({ roomId }: { roomId: string }) {
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Avatar Stack */}
           <div className="hidden sm:flex items-center -space-x-2">
-            {collaboratorsList.slice(0, 3).map((collab: any) => (
-              <div 
-                key={collab.id} 
-                title={collab.name}
-                className="w-7 h-7 rounded-full border-2 border-white bg-indigo-500 text-white flex items-center justify-center font-bold text-[10px] shadow-sm"
-              >
-                {collab.name ? collab.name.charAt(0).toUpperCase() : "U"}
-              </div>
-            ))}
+            {collaboratorsList.slice(0, 3).map((collab: any) => {
+              const isSelf = collab.id === user?.id;
+              const color = isSelf ? SELF_COLOR : getAvatarColor(collab.id);
+              return (
+                <div 
+                  key={collab.id} 
+                  title={`${collab.name}${isSelf ? ' (You)' : ''}`}
+                  className={`w-7 h-7 rounded-full border-2 border-white ${color.bg} text-white flex items-center justify-center font-bold text-[10px] shadow-sm`}
+                >
+                  {collab.name ? collab.name.charAt(0).toUpperCase() : "U"}
+                </div>
+              );
+            })}
             {collaboratorsList.length > 3 && (
-              <div className="w-7 h-7 rounded-full border-2 border-white bg-gray-50 flex items-center justify-center text-[10px] font-bold text-gray-500">
+              <div className="w-7 h-7 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-500">
                 +{collaboratorsList.length - 3}
               </div>
             )}
@@ -259,14 +284,14 @@ function Topbar({ roomId }: { roomId: string }) {
 
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-all shadow-glow-sm hover:shadow-glow-md"
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-semibold hover:from-violet-700 hover:to-indigo-700 transition-all shadow-glow-sm hover:shadow-glow-md"
           >
             <Plus size={16} /> <span className="hidden sm:inline">Add Collaborator</span>
           </button>
 
           <Link
             href="/room"
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-white border border-gray-200 text-primary text-sm font-semibold hover:bg-gray-50 transition-all shadow-sm"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-teal-50 border border-teal-200 text-teal-700 text-sm font-semibold hover:bg-teal-100 transition-all shadow-sm"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span className="hidden sm:inline">Go to Room</span>
@@ -276,8 +301,8 @@ function Topbar({ roomId }: { roomId: string }) {
           
           {user ? (
             <div 
-              title={user.name}
-              className="w-8 h-8 rounded-full border border-gray-200 bg-primary text-white flex items-center justify-center cursor-pointer hover:ring-2 ring-primary/30 transition-all ml-2 font-bold text-xs shadow-sm"
+              title={`${user.name} (You)`}
+              className={`w-8 h-8 rounded-full border-2 border-white ${SELF_COLOR.bg} text-white flex items-center justify-center cursor-pointer hover:ring-2 ${SELF_COLOR.ring} transition-all ml-2 font-bold text-xs shadow-sm`}
             >
               {user.name ? user.name.charAt(0).toUpperCase() : "U"}
             </div>
@@ -492,13 +517,13 @@ function CollaboratorModal({ show, onClose, roomId, room, user, onRefresh }: { s
                 ].map((person) => (
                   <div key={person.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full border-2 border-white bg-indigo-500 text-white flex items-center justify-center font-bold shadow-sm">
+                      <div className={`w-10 h-10 rounded-full border-2 border-white ${person.isYou ? SELF_COLOR.bg : getAvatarColor(person.id).bg} text-white flex items-center justify-center font-bold shadow-sm`}>
                         {person.name ? person.name.charAt(0).toUpperCase() : "U"}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-bold text-gray-900">{person.name}</span>
-                          {person.isYou && <span className="px-1.5 py-0.5 rounded bg-indigo-50 text-primary text-[10px] font-bold">You</span>}
+                          {person.isYou && <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold">You</span>}
                         </div>
                         <span className="text-xs text-gray-500">{person.email}</span>
                       </div>

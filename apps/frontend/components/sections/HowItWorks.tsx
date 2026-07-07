@@ -54,7 +54,7 @@ export function HowItWorks() {
           className="text-center mb-10"
         >
           <span className="inline-block text-sm font-semibold text-primary mb-3 tracking-wide">Simple & Fast</span>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">
+          <h2 className="font-display italic text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
             How Draw App Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
@@ -191,7 +191,7 @@ export function HowItWorks() {
             transition={{ duration: 0.6 }}
           >
             <span className="inline-block text-sm font-semibold text-primary mb-3 tracking-wide">Live Collaboration</span>
-            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground mb-6">
+            <h3 className="font-display italic text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-6">
               See your team in action
             </h3>
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">

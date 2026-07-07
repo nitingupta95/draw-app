@@ -34,7 +34,7 @@ export function CTASection() {
               Ready to get started?
             </span>
 
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground mb-4">
+            <h2 className="font-display italic text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-4">
               Start drawing with your team today
             </h2>
 
