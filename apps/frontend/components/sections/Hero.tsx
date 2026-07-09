@@ -28,7 +28,7 @@ export function Hero() {
           </div>
 
           {/* Headline */}
-          <h1 className="font-display italic text-[2.5rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-foreground break-words">
+          <h1 className="font-display italic text-4xl leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-foreground break-words">
             Draw, Collaborate,{' '}
             <br className="hidden md:block" />
             Create{' '}
@@ -95,7 +95,7 @@ export function Hero() {
             </div>
 
             {/* Mockup Canvas */}
-            <div className="relative h-[200px] sm:h-[320px] md:h-[400px] bg-white p-3 sm:p-6 overflow-hidden">
+            <div className="relative w-full aspect-video md:h-[400px] md:aspect-auto bg-white p-3 sm:p-6 overflow-hidden flex items-center justify-center">
               {/* Toolbar left */}
               <div className="absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 flex flex-col gap-1 sm:gap-1.5 bg-white rounded-lg sm:rounded-xl shadow-card p-1 sm:p-2 border border-gray-100 scale-75 sm:scale-100 origin-left z-10">
                 {['M12 19l7-7 3 3-7 7-3-3z M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z M2 2l7.586 7.586', 'M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z', 'M3 3h18v18H3z', 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', 'M5 3l14 9-14 9V3z', 'M4 7V4h16v3 M9 20h6 M12 4v16'].map((d, i) => (
@@ -108,7 +108,7 @@ export function Hero() {
               </div>
 
               {/* Canvas shapes */}
-              <svg className="w-full h-full" viewBox="0 0 800 350" fill="none">
+              <svg className="w-full h-full max-h-full" viewBox="0 0 800 350" fill="none" preserveAspectRatio="xMidYMid meet">
                 {/* Ideas box */}
                 <rect x="100" y="120" width="120" height="70" rx="12" fill="#E8E5FF" stroke="#6C5CE7" strokeWidth="2" />
                 <text x="160" y="162" textAnchor="middle" className="text-sm font-semibold" fill="#6C5CE7">Ideas</text>
