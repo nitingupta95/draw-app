@@ -198,7 +198,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="flex gap-3 relative z-10 max-w-2xl">
+          <div className="flex flex-col sm:flex-row gap-3 relative z-10 max-w-2xl">
             <input
               value={newRoomName}
               onChange={(e) => setNewRoomName(e.target.value)}
@@ -209,7 +209,7 @@ export default function Dashboard() {
             <button
               onClick={createRoom}
               disabled={isCreatingRoom}
-              className="px-6 py-3.5 rounded-2xl bg-primary text-white text-sm font-semibold flex items-center gap-2 hover:bg-primary-dark transition-all disabled:opacity-70 shadow-glow-sm hover:shadow-glow-md"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-primary text-white text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary-dark transition-all disabled:opacity-70 shadow-glow-sm hover:shadow-glow-md"
             >
               <Plus size={18} />
               Create Room

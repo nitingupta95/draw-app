@@ -54,7 +54,7 @@ export function HowItWorks() {
           className="text-center mb-10"
         >
           <span className="inline-block text-sm font-semibold text-primary mb-3 tracking-wide">Simple & Fast</span>
-          <h2 className="font-display italic text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
+          <h2 className="font-display italic text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
             How Draw App Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
@@ -106,17 +106,17 @@ export function HowItWorks() {
           >
             <div className="rounded-2xl shadow-card border border-card-border bg-white overflow-hidden">
               {/* Mockup Header */}
-              <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50 border-b border-gray-100">
-                <div className="flex items-center gap-2">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-400" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                    <div className="w-3 h-3 rounded-full bg-green-400" />
+              <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 border-b border-gray-100">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="flex gap-1 sm:gap-1.5">
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-400" />
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-400" />
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-400" />
                   </div>
-                  <span className="text-xs font-medium text-muted-foreground ml-2">Product Roadmap</span>
+                  <span className="text-[10px] sm:text-xs font-medium text-muted-foreground ml-1 sm:ml-2 truncate max-w-[80px] sm:max-w-none">Product Roadmap</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-1.5">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="hidden sm:flex -space-x-1.5">
                     <div className="w-6 h-6 rounded-full bg-purple-200 border-2 border-white text-[8px] font-bold text-purple-700 flex items-center justify-center">A</div>
                     <div className="w-6 h-6 rounded-full bg-blue-200 border-2 border-white text-[8px] font-bold text-blue-700 flex items-center justify-center">J</div>
                     <div className="w-6 h-6 rounded-full bg-green-200 border-2 border-white text-[8px] font-bold text-green-700 flex items-center justify-center">M</div>
@@ -126,7 +126,7 @@ export function HowItWorks() {
               </div>
 
               {/* Canvas content */}
-              <div className="p-6 h-[300px] md:h-[380px] relative bg-white">
+              <div className="p-3 sm:p-6 h-[220px] sm:h-[300px] md:h-[380px] relative bg-white overflow-hidden">
                 <svg className="w-full h-full" viewBox="0 0 500 320" fill="none">
                   {/* Q1 Research */}
                   <rect x="60" y="80" width="110" height="70" rx="10" fill="#E8E5FF" stroke="#C4B5FD" strokeWidth="1.5"/>
@@ -169,15 +169,15 @@ export function HowItWorks() {
               </div>
 
               {/* Bottom toolbar */}
-              <div className="flex items-center justify-center gap-3 py-3 border-t border-gray-100 bg-gray-50">
+              <div className="flex items-center justify-center gap-2 sm:gap-3 py-2 sm:py-3 border-t border-gray-100 bg-gray-50 overflow-x-auto px-2">
                 {['✏️', '🖊️', '⭕', '↩️', '↪️'].map((e, i) => (
-                  <span key={i} className="text-sm cursor-pointer">{e}</span>
+                  <span key={i} className="text-xs sm:text-sm cursor-pointer flex-shrink-0">{e}</span>
                 ))}
-                <div className="flex gap-1 ml-2">
-                  <div className="w-5 h-5 rounded-full bg-foreground" />
-                  <div className="w-5 h-5 rounded-full bg-primary" />
-                  <div className="w-5 h-5 rounded-full bg-blue-500" />
-                  <div className="w-5 h-5 rounded-full bg-yellow-400" />
+                <div className="flex gap-1 ml-1 sm:ml-2 flex-shrink-0">
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-foreground" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-blue-500" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-yellow-400" />
                 </div>
               </div>
             </div>
@@ -191,7 +191,7 @@ export function HowItWorks() {
             transition={{ duration: 0.6 }}
           >
             <span className="inline-block text-sm font-semibold text-primary mb-3 tracking-wide">Live Collaboration</span>
-            <h3 className="font-display italic text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-6">
+            <h3 className="font-display italic text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-6">
               See your team in action
             </h3>
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">

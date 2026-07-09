@@ -28,7 +28,7 @@ export function Hero() {
           </div>
 
           {/* Headline */}
-          <h1 className="font-display italic text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-foreground leading-[1.1]">
+          <h1 className="font-display italic text-[2.5rem] leading-[1.1] sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-foreground break-words">
             Draw, Collaborate,{' '}
             <br className="hidden md:block" />
             Create{' '}
@@ -37,7 +37,7 @@ export function Hero() {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
             DrawApp is a real-time collaborative whiteboard for teams to sketch, brainstorm,
             and bring ideas to life — together, instantly.
           </p>
@@ -69,35 +69,35 @@ export function Hero() {
         >
           <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-card-border bg-white">
             {/* Mockup Top Bar */}
-            <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 border-b border-gray-100 overflow-x-auto hide-scrollbar">
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
-                <span className="text-sm font-medium text-muted-foreground">Product Roadmap</span>
-                <span className="text-muted-foreground/50">•••</span>
+                <span className="text-xs sm:text-sm font-medium text-muted-foreground whitespace-nowrap">Product Roadmap</span>
+                <span className="text-muted-foreground/50 hidden sm:inline">•••</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 ml-4">
+                <div className="hidden sm:flex items-center gap-1">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0" /><path d="M12 8v4l2 2" /></svg>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
                 </div>
                 {/* Avatar stack */}
-                <div className="flex -space-x-2 ml-2">
+                <div className="hidden sm:flex -space-x-2 ml-2">
                   <div className="w-7 h-7 rounded-full bg-purple-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-purple-700">A</div>
                   <div className="w-7 h-7 rounded-full bg-blue-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-blue-700">J</div>
                   <div className="w-7 h-7 rounded-full bg-green-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-green-700">M</div>
                   <div className="w-7 h-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-gray-500">+4</div>
                 </div>
-                <button className="ml-2 flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-semibold rounded-lg">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
+                <button className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-primary text-primary-foreground text-[10px] sm:text-xs font-semibold rounded-lg whitespace-nowrap">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
                   Share
                 </button>
               </div>
             </div>
 
             {/* Mockup Canvas */}
-            <div className="relative h-[320px] md:h-[400px] bg-white p-6">
+            <div className="relative h-[200px] sm:h-[320px] md:h-[400px] bg-white p-3 sm:p-6 overflow-hidden">
               {/* Toolbar left */}
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 bg-white rounded-xl shadow-card p-2 border border-gray-100">
+              <div className="absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 flex flex-col gap-1 sm:gap-1.5 bg-white rounded-lg sm:rounded-xl shadow-card p-1 sm:p-2 border border-gray-100 scale-75 sm:scale-100 origin-left z-10">
                 {['M12 19l7-7 3 3-7 7-3-3z M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z M2 2l7.586 7.586', 'M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z', 'M3 3h18v18H3z', 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z', 'M5 3l14 9-14 9V3z', 'M4 7V4h16v3 M9 20h6 M12 4v16'].map((d, i) => (
                   <div key={i} className={`w-8 h-8 rounded-lg flex items-center justify-center ${i === 0 ? 'bg-primary/10 text-primary' : 'text-gray-400 hover:bg-gray-50'} transition-colors cursor-pointer`}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -177,10 +177,10 @@ export function Hero() {
               </svg>
 
               {/* Bottom toolbar */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-white rounded-xl shadow-card px-3 py-2 border border-gray-100">
+              <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 sm:gap-2 bg-white rounded-lg sm:rounded-xl shadow-card px-2 sm:px-3 py-1 sm:py-2 border border-gray-100 scale-75 sm:scale-100 origin-bottom z-10">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-muted-foreground">—</span>
-                  <span className="text-xs font-medium text-foreground">100%</span>
+                  <span className="text-[10px] sm:text-xs font-medium text-foreground">100%</span>
                   <span className="text-xs text-muted-foreground">+</span>
                 </div>
                 <div className="w-px h-4 bg-gray-200 mx-1"></div>

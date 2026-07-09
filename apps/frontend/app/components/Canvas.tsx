@@ -21,9 +21,7 @@ import {
   MoreVertical,
   Link as LinkIcon,
   Copy,
-  Minus,
-  Plus,
-  Maximize
+  Plus
 } from "lucide-react";
 import { Game, Tool } from "../draw/Game";
 import { AnimatePresence, motion } from "framer-motion";
@@ -177,7 +175,6 @@ export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }
 
       {/* Floating Drawing Toolbar */}
       <FloatingToolbar selectedTool={selectedTool} setSelectedTool={setSelectedTool} canEdit={canEdit} game={game} />
-      <ZoomControls />
     </div>
   );
 }
@@ -376,27 +373,6 @@ function FloatingToolbar({ selectedTool, setSelectedTool, canEdit, game }: { sel
         <Redo2 size={18} />
       </button>
     </motion.div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*                               ZOOM CONTROLS                                */
-/* -------------------------------------------------------------------------- */
-function ZoomControls() {
-  return (
-    <div className="absolute bottom-6 left-6 z-40 flex items-center gap-1 px-2 py-1.5 bg-white rounded-xl shadow-md border border-gray-100">
-      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-lg transition-colors">
-        <Minus size={16} />
-      </button>
-      <span className="text-xs font-semibold text-gray-700 w-12 text-center">100%</span>
-      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-lg transition-colors">
-        <Plus size={16} />
-      </button>
-      <div className="w-px h-4 bg-gray-200 mx-1" />
-      <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-lg transition-colors">
-        <Maximize size={16} />
-      </button>
-    </div>
   );
 }
 
