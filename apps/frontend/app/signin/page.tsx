@@ -5,11 +5,12 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { HTTP_BACKEND } from "@/config";
 import { useState } from "react";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function Signin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-
+  const { setToken } = useAuthStore();
 
   async function handleSignup(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,8 +31,7 @@ export default function Signin() {
       const token = response.data?.token;
 
       if (token) {
-
-        localStorage.setItem("Authorization", token);
+        setToken(token);
 
         console.log("Token saved:", token);
 

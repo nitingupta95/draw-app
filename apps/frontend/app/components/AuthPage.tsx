@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AuthLayout } from "./auth/AuthLayout";
 import { AuthForm } from "./auth/AuthForm";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export function AuthPage({
   isSignin,
@@ -15,12 +16,13 @@ export function AuthPage({
   loading: boolean;
 }) {
   const router = useRouter();
+  const { token, isHydrated } = useAuthStore();
 
   useEffect(() => {
-    if (localStorage.getItem("Authorization")) {
+    if (isHydrated && token) {
       router.push("/room");
     }
-  }, [router]);
+  }, [token, isHydrated, router]);
 
   return (
     <div className="min-h-screen flex bg-background">

@@ -9,87 +9,81 @@ import { DashboardHeader } from "./components/DashboardHeader";
 import { CreateRoomCard } from "./components/CreateRoomCard";
 import { RoomList, Room, User } from "./components/RoomList";
 import { LogoutModal } from "./components/LogoutModal";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+const fetchUserData = async (token: string) => {
+  const response = await axios.get(`${HTTP_BACKEND}/me`, {
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.data?.user) throw new Error("Invalid user data");
+  return response.data;
+};
 
 export default function Dashboard() {
   const router = useRouter();
-  const [rooms, setRooms] = useState<Room[]>([]);
+  const queryClient = useQueryClient();
+  const { token, logout, isHydrated } = useAuthStore();
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [newRoomName, setNewRoomName] = useState("");
-  const [user, setUser] = useState<User | null>(null);
-  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
-    const storedToken = localStorage.getItem("Authorization");
-    const token = storedToken?.startsWith("Bearer ")
-      ? storedToken
-      : `Bearer ${storedToken}`;
-
-    if (!token) {
+    if (isHydrated && !token) {
       toast.error("Session expired. Please login again.");
       router.push("/signin");
-      return;
     }
-    fetchUserData(token);
-  }, []);
+  }, [token, isHydrated, router]);
 
-  const fetchUserData = async (token: string) => {
-    try {
-      const response = await axios.get(`${HTTP_BACKEND}/me`, {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      });
+  const { data, isLoading } = useQuery({
+    queryKey: ["me"],
+    queryFn: () => {
+      const activeToken = token?.startsWith("Bearer ") ? token : `Bearer ${token}`;
+      return fetchUserData(activeToken!);
+    },
+    enabled: !!token,
+  });
 
-      if (!response.data?.user) throw new Error("Invalid user data");
-
-      setUser(response.data.user);
-      setRooms(response.data.rooms || []);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-    } finally {
-      setIsLoading(false);
+  const createRoomMutation = useMutation({
+    mutationFn: async (name: string) => {
+      const activeToken = token?.startsWith("Bearer ") ? token : `Bearer ${token}`;
+      const response = await axios.post(
+        `${HTTP_BACKEND}/room`,
+        { name },
+        { headers: { Authorization: activeToken } }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+      setNewRoomName("");
+      toast.success("Room created!");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Error creating room");
     }
-  };
+  });
 
   const handleLogout = () => {
     setShowLogoutModal(false);
-    localStorage.removeItem("Authorization");
+    logout();
     router.push("/signin");
     toast.success("Logged out successfully");
   };
 
-  const createRoom = async () => {
+  const createRoom = () => {
     if (!newRoomName.trim()) return toast.error("Enter a valid room name");
-
-    setIsCreatingRoom(true);
-    try {
-      const storedToken = localStorage.getItem("Authorization");
-      const token = storedToken?.startsWith("Bearer ")
-        ? storedToken
-        : `Bearer ${storedToken}`;
-
-      const response = await axios.post(
-        `${HTTP_BACKEND}/room`,
-        { name: newRoomName },
-        { headers: { Authorization: token } }
-      );
-      
-      // Refetch user data so the new room includes admin info
-      await fetchUserData(token);
-      setNewRoomName("");
-      toast.success("Room created!");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error creating room");
-    } finally {
-      setIsCreatingRoom(false);
-    }
+    createRoomMutation.mutate(newRoomName);
   };
 
-  const filteredRooms = rooms.filter(room => 
+  const user = data?.user;
+  const rooms = data?.rooms || [];
+
+  const filteredRooms = rooms.filter((room: Room) => 
     room.slug.toLowerCase().includes(searchQuery.toLowerCase()) || 
     (room.name && room.name.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -124,7 +118,7 @@ export default function Dashboard() {
             newRoomName={newRoomName}
             setNewRoomName={setNewRoomName}
             createRoom={createRoom}
-            isCreatingRoom={isCreatingRoom}
+            isCreatingRoom={createRoomMutation.isPending}
           />
 
           {isLoading ? (
