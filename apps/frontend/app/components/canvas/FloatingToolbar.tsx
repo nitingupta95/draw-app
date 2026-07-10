@@ -22,8 +22,7 @@ export function FloatingToolbar({ selectedTool, setSelectedTool, canEdit, game }
       className="absolute top-24 sm:top-28 left-1/2 -translate-x-1/2 z-40 flex flex-wrap justify-center items-center gap-1 sm:gap-1.5 p-2 sm:px-3 sm:py-2 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 w-fit max-w-[90vw] sm:max-w-max"
     >
       {tools.map((tool) => {
-        const isDrawingTool = tool.id !== "selection" && tool.id !== "cursor";
-        const disabled = !canEdit && isDrawingTool;
+        const disabled = !canEdit;
         return (
           <button
             key={tool.id}

@@ -42,6 +42,24 @@ export function CollaboratorModal({ show, onClose, roomId, room, user, onRefresh
     }
   }
 
+  async function handleRoleChange(personId: string, canEdit: boolean) {
+    try {
+      const token = localStorage.getItem("Authorization");
+      await fetch(`${HTTP_BACKEND}/rooms/${roomId}/collaborators`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId: personId, canEdit }),
+      });
+      toast.success("Role updated!");
+      onRefresh();
+    } catch (err) {
+      toast.error("Failed to update role");
+    }
+  }
+
   return (
     <AnimatePresence>
       {show && (
@@ -135,7 +153,12 @@ export function CollaboratorModal({ show, onClose, roomId, room, user, onRefresh
                         <span className="text-sm font-semibold text-primary mr-3">Owner</span>
                       ) : (
                         <div className="relative">
-                          <select className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer" defaultValue={person.role === "Can edit" ? "Can edit" : "Can view"}>
+                          <select 
+                            className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer disabled:opacity-50" 
+                            value={person.role === "Can edit" ? "Can edit" : "Can view"}
+                            onChange={(e) => handleRoleChange(person.id, e.target.value === "Can edit")}
+                            disabled={room?.admin?.id !== user?.id}
+                          >
                             <option value="Can edit">Can edit</option>
                             <option value="Can view">Can view</option>
                           </select>

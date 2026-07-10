@@ -50,6 +50,8 @@ export function Canvas({ roomId, socket }: { socket: WebSocket; roomId: string }
           setCanEdit(data.canEdit);
         } else if (data.role === "admin") {
           setCanEdit(true);
+        } else {
+          setCanEdit(false);
         }
       }
     }
