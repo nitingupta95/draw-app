@@ -12,9 +12,7 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
   useEffect(() => {
     if (!roomId) return;
 
-    const token = localStorage.getItem("Authorization");
-    if (!token) return console.error("❌ No token found!");
-
+    const token = localStorage.getItem("Authorization") || "";
     const ws = new WebSocket(`${WS_URl}?token=${token}`);
 
     ws.onopen = () => {

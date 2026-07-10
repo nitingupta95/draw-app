@@ -8,7 +8,7 @@ const wss = new WebSocketServer({ port: 8088 });
 interface UserConnection {
     ws: WebSocket;
     rooms: string[];
-    userId: string;
+    userId: string | null;
 }
 
 let users: UserConnection[] = [];
@@ -45,11 +45,10 @@ wss.on("connection", async function connection(ws: WebSocket, request) {
 
     const userId = validateToken(token);
     if (!userId) {
-        ws.close(1008, "Invalid token");
-        return;
+        console.log("👤 Anonymous WebSocket user connected");
+    } else {
+        console.log(`✅ Authenticated WebSocket user: ${userId}`);
     }
-
-    console.log(`✅ Authenticated WebSocket user: ${userId}`);
 
     users.push({ userId, rooms: [], ws });
 
@@ -72,22 +71,30 @@ wss.on("connection", async function connection(ws: WebSocket, request) {
 
             /* ------------------------------ JOIN ROOM ----------------------------- */
             if (parsed.type === "join_room") {
-                console.log(`➡️ join_room request user=${userId} room=${roomId}`);
+                console.log(`➡️ join_room request user=${userId || 'anonymous'} room=${roomId}`);
 
-                const isCollaborator = await prismaClient.collaborator.findFirst({
-                    where: { roomId, userId }
+                const room = await prismaClient.room.findUnique({
+                    where: { id: roomId }
                 });
 
-                const isAdmin = await prismaClient.room.findFirst({
-                    where: { id: roomId, adminId: userId }
-                });
-
-                if (!isCollaborator && !isAdmin) {
-                    ws.send(JSON.stringify({
-                        type: "error",
-                        message: "You are not allowed to join this room"
-                    }));
+                if (!room) {
+                    ws.send(JSON.stringify({ type: "error", message: "Room not found" }));
                     return;
+                }
+
+                if (room.passcode) {
+                    if (!userId) {
+                        ws.send(JSON.stringify({ type: "error", message: "Passcode required to join" }));
+                        return;
+                    }
+                    const isCollaborator = await prismaClient.collaborator.findFirst({
+                        where: { roomId, userId }
+                    });
+                    const isAdmin = room.adminId === userId;
+                    if (!isCollaborator && !isAdmin) {
+                        ws.send(JSON.stringify({ type: "error", message: "Passcode required to join" }));
+                        return;
+                    }
                 }
 
                 const user = users.find((u) => u.ws === ws);
@@ -112,6 +119,11 @@ wss.on("connection", async function connection(ws: WebSocket, request) {
             /* ------------------------------- DRAW / CHAT --------------------------- */
             if (parsed.type === "chat") {
                 const { message } = parsed;
+
+                if (!userId) {
+                    ws.send(JSON.stringify({ type: "error", message: "Unauthorized user" }));
+                    return;
+                }
 
                 // Validate user exists
                 const dbUser = await prismaClient.user.findUnique({
