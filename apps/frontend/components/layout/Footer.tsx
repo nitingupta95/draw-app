@@ -14,14 +14,14 @@ export function Footer() {
                 <path d="M2 12l10 5 10-5"/>
               </svg>
             </div>
-            <span className="font-bold text-lg tracking-tight text-foreground">Draw App</span>
+            <span className="font-bold text-lg tracking-tight text-foreground">Sketch Collab</span>
           </Link>
           <p className="text-sm text-muted-foreground max-w-sm text-center md:text-left leading-relaxed">
             The real-time collaborative whiteboard for modern teams to sketch, brainstorm and build together.
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Draw App. All rights reserved.
+          © {new Date().getFullYear()} Sketch Collab. All rights reserved.
         </p>
       </div>
     </footer>

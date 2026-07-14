@@ -1,5 +1,5 @@
 {
-  "name": "draw-app",
+  "name": "SketchCollab",
   "private": true,
   "scripts": {
     "dev": "turbo run dev --parallel",

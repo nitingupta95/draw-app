@@ -24,7 +24,7 @@ export function AuthLayout() {
               <path d="M2 12l10 5 10-5"/>
             </svg>
           </div>
-          <span className="font-bold text-lg tracking-tight text-foreground">Draw App</span>
+          <span className="font-bold text-lg tracking-tight text-foreground">Sketch Collab</span>
         </Link>
 
         {/* Content block */}

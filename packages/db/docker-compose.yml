@@ -8,9 +8,9 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
-      POSTGRES_DB: drawapp
+      POSTGRES_DB: SketchCollab
     ports:
-      - "5434:5432"    
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:

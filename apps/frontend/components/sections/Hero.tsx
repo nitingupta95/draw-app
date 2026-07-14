@@ -38,7 +38,7 @@ export function Hero() {
 
           {/* Subtitle */}
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-            DrawApp is a real-time collaborative whiteboard for teams to sketch, brainstorm,
+            SketchCollab is a real-time collaborative whiteboard for teams to sketch, brainstorm,
             and bring ideas to life — together, instantly.
           </p>
 
@@ -164,7 +164,7 @@ export function Hero() {
                 <text x="725" y="65" textAnchor="middle" className="text-[10px] font-bold" fill="#1A1A2E">Share Room</text>
                 <text x="725" y="80" textAnchor="middle" className="text-[8px]" fill="#9CA3AF">Invite people to collaborate</text>
                 <rect x="672" y="90" width="106" height="18" rx="4" fill="#F3F4F6" stroke="#E5E7EB" strokeWidth="1" />
-                <text x="725" y="103" textAnchor="middle" className="text-[7px]" fill="#9CA3AF">team@drawapp.com</text>
+                <text x="725" y="103" textAnchor="middle" className="text-[7px]" fill="#9CA3AF">team@SketchCollab.com</text>
                 <rect x="672" y="115" width="106" height="22" rx="6" fill="#6C5CE7" />
                 <text x="725" y="130" textAnchor="middle" className="text-[8px] font-bold" fill="white">Copy Room Link</text>
 

@@ -3,12 +3,12 @@ import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { Hero } from '../components/sections/Hero';
 import { HowItWorks } from '../components/sections/HowItWorks';
-import { FeatureGrid } from '../components/sections/FeatureGrid'; 
+import { FeatureGrid } from '../components/sections/FeatureGrid';
 import { CTASection } from '../components/sections/CTASection';
 
 export const metadata = {
-  title: 'DrawApp - Real-Time Collaborative Whiteboard',
-  description: 'DrawApp is a real-time collaborative whiteboard for teams to sketch, brainstorm, and bring ideas to life — together, instantly.',
+  title: 'SketchCollab- Real-Time Collaborative Whiteboard',
+  description: 'SketchCollabis a real-time collaborative whiteboard for teams to sketch, brainstorm, and bring ideas to life — together, instantly.',
 };
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
       <main className="flex-grow">
         <Hero />
         <HowItWorks />
-        <FeatureGrid /> 
+        <FeatureGrid />
         <CTASection />
       </main>
       <Footer />

@@ -1,7 +1,7 @@
-# 🎨 Draw App — Real-Time Collaborative Whiteboard
+# 🎨 Sketch Collab — Real-Time Collaborative Whiteboard
 
 A powerful, modern real-time collaboration drawing system built using **Next.js**, **WebSockets**, **Prisma**, and **Turborepo**.  
-Draw App allows multiple users to sketch, brainstorm, and design together instantly on a shared canvas — with persistent storage and live synchronization.
+Sketch Collab allows multiple users to sketch, brainstorm, and design together instantly on a shared canvas — with persistent storage and live synchronization.
 
 ---
 
@@ -115,7 +115,7 @@ Create a `.env` file in the root directory. You will need the following variable
 
 ```env
 # The connection string for your PostgreSQL database
-DATABASE_URL="postgresql://user:password@localhost:5432/drawapp?schema=public"
+DATABASE_URL="postgresql://user:password@localhost:5432/SketchCollab?schema=public"
 
 # The secret key for signing JWT tokens
 JWT_SECRET="your-super-secret-jwt-key"

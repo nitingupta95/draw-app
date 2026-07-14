@@ -4,8 +4,8 @@ import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
 
 export const metadata = {
-  title: 'Documentation | Draw App',
-  description: 'API reference and technical documentation for Draw App.',
+  title: 'Documentation | Sketch Collab',
+  description: 'API reference and technical documentation for Sketch Collab.',
 };
 
 export default function DocsPage() {

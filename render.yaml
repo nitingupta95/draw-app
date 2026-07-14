@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: draw-app-ws-backend
+    name: SketchCollab-ws-backend
     env: docker
     dockerfilePath: ./Dockerfile
     plan: free

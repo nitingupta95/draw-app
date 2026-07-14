@@ -18,7 +18,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "DrawApp - Real-Time Collaborative Whiteboard",
+  title: "SketchCollab - Real-Time Collaborative Whiteboard",
   description: "Draw, collaborate, and create together in real-time. A collaborative whiteboard for teams to sketch, brainstorm, and bring ideas to life.",
 };
 

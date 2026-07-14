@@ -57,7 +57,7 @@ export function HowItWorks() {
         >
           <span className="inline-block text-sm font-semibold text-primary mb-3 tracking-wide">Simple & Fast</span>
           <h2 className="font-display italic text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
-            How Draw App Works
+            How Sketch Collab Works
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
             Get your team on the same canvas in seconds.

@@ -15,7 +15,7 @@ export function DashboardHeader({ setShowLogoutModal }: DashboardHeaderProps) {
             <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
           </svg>
         </div>
-        <span className="font-bold text-lg text-gray-900 tracking-tight">Draw App</span>
+        <span className="font-bold text-lg text-gray-900 tracking-tight">Sketch Collab</span>
       </Link>
 
       <div className="flex items-center gap-4">

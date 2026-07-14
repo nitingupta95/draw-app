@@ -63,7 +63,7 @@ export function Topbar({ roomId }: { roomId: string }) {
                 <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
               </svg>
             </div>
-            <span className="font-bold text-gray-900 tracking-tight hidden sm:inline">Draw App</span>
+            <span className="font-bold text-gray-900 tracking-tight hidden sm:inline">Sketch Collab</span>
             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-primary uppercase ml-1 tracking-wider hidden sm:inline">Beta</span>
           </Link>
 
